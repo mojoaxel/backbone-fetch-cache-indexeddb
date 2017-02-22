@@ -1,0 +1,23 @@
+{
+  "name": "backbone-fetch-cache-indexeddb",
+  "version": "0.0.1",
+  "description": "Agressive caching for Backbone's fetch method",
+  "main": "backbone.fetch-cache.indexeddb.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mojoaxel/backbone-fetch-cache-indexeddb.git"
+  },
+  "keywords": [
+    "backbone",
+    "cache"
+  ],
+  "author": "Alexander Wunschik <mail@wunschik.it>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb/issues"
+  },
+  "homepage": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb#readme"
+}
