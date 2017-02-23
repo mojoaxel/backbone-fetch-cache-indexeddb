@@ -14,7 +14,8 @@ describe('Make sure the TestServer supports everything we need', () => {
 
 		server = jsonServer.create();
 		server.use(jsonServer.defaults({
-			logger: false
+			logger: false,
+			port: 8123
 		}));
 		server.use(jsonServer.rewriter(rewriterRules));
 		server.use(jsonServer.router(db));
@@ -38,17 +39,17 @@ describe('Make sure the TestServer supports everything we need', () => {
 		});
 	});
 
-	describe('POST /posts', () => {
+	describe('POST /collection', () => {
 		it('should respond with json, create a resource and increment id', (done) => {
 			request(server)
-				.post('/posts')
+				.post('/collection')
 				.send({body: 'foo', booleanValue: true, integerValue: 1})
 				.expect('Content-Type', /json/)
 				.expect({id: 3, body: 'foo', booleanValue: true, integerValue: 1})
 				.expect(201)
 				.end((err, res) => {
 					if (err) return done(err)
-					assert.equal(db.posts.length, 3)
+					assert.equal(db.collection.length, 3)
 					done()
 				})
 		})
