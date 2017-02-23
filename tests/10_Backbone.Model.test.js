@@ -8,8 +8,7 @@ const _ = require('underscore');
 describe('Backbone.Model', () => {
 	var db, testServer;
 	var $, Backbone;
-	var model, collection;
-	var TestModel, TestCollection;
+	var TestModel;
 
 	jsdom();
 
@@ -24,84 +23,29 @@ describe('Backbone.Model', () => {
 		testServer.use(jsonServer.rewriter(rewriterRules));
 		testServer.use(jsonServer.router(db));
 
-		Backbone = require('backbone');
+		Backbone = require('../backbone.fetch-cache.indexeddb');
 		Backbone.$ = $ = require('jquery');
 
 		TestModel = Backbone.Model.extend({
-			url: 'http://localhost:3000/model'
-		});
-
-		TestCollection = Backbone.Collection.extend({
-			url: 'http://localhost:3000/collection'
+			url: function() {
+				return 'http://localhost:3000/model';
+			}
 		});
 
 		testServer.listen(3000, done);
 	})
 
-	beforeEach(() => {
-		model = new TestModel();
-		collection = new TestCollection();
-		collection.add(model);
-	})
-
 	describe('fetch', () => {
 
-		it('TestServer should be running', (done) => {
+		it('Make sure the TestServer is availible', (done) => {
 			request('http://localhost:3000')
 				.get('/model')
 				.expect(200, done)
 		});
 
-		it('save, fetch, destroy triggers error event when an error occurs', function() {
-			var model = new Backbone.Model();
-			model.on('error', function() {
-				assert.ok(true);
-			});
-			model.sync = function(method, m, options) {
-				options.error();
-			};
-			model.save({data: 2, id: 1});
-			model.fetch();
-			model.destroy();
-		});
-
-		it('save, fetch, destroy calls success with context', function() {
-			var model = new Backbone.Model();
-			var obj = {};
-			var options = {
-				context: obj,
-				success: function() {
-					assert.equal(this, obj);
-				}
-			};
-			model.sync = function(method, m, opts) {
-				opts.success.call(opts.context);
-			};
-			model.save({data: 2, id: 1}, options);
-			model.fetch(options);
-			model.destroy(options);
-		});
-
-		it('save, fetch, destroy calls error with context', function() {
-			var model = new Backbone.Model();
-			var obj = {};
-			var options = {
-				context: obj,
-				error: function() {
-					assert.equal(this, obj);
-				}
-			};
-			model.sync = function(method, m, opts) {
-				opts.error.call(opts.context);
-			};
-			model.save({data: 2, id: 1}, options);
-			model.fetch(options);
-			model.destroy(options);
-		});
-
 		it('save and fetch with parse false', function() {
+			var model = new TestModel();
 			var i = 0;
-			var model = new Backbone.Model();
 			model.parse = function() {
 				assert.ok(false);
 			};
@@ -115,6 +59,7 @@ describe('Backbone.Model', () => {
 		});
 
 		it('fetch success callback', function(done) {
+			var model = new TestModel();
 			model.fetch({
 				success: function(model, response, options) {
 					assert.equal(model.get('foo'), 'foo');
@@ -125,59 +70,101 @@ describe('Backbone.Model', () => {
 		});
 
 		it('fetch should trigger the "request" event', function(done) {
+			var model = new TestModel();
 			model.on("request", function() {
+				model.destroy();
 				done();
 			});
 			model.fetch();
 		});
 
 		it('fetch should trigger the "sync" event', function(done) {
+			var model = new TestModel();
 			model.on("sync", function() {
 				assert.equal(model.get('foo'), 'foo');
 				assert.equal(model.get('bar'), 'bar');
+				model.destroy();
 				done();
 			});
 			model.fetch();
 		});
 
 		it('fetch should trigger the "change" event', function(done) {
+			var model = new TestModel();
 			model.on("change", function() {
 				assert.equal(model.get('foo'), 'foo');
 				assert.equal(model.get('bar'), 'bar');
+				model.destroy();
 				done();
 			});
 			model.fetch();
 		});
 
 		it('fetch with global:true should trigger ajaxSend', function(done) {
+			var model = new TestModel();
 			var ajaxEventTriggered = false;
 			$(document).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
 				ajaxEventTriggered = true;
 			});
 			model.fetch({
-				global: true
+				global: true,
+				success: function() {
+					$(document).off('ajaxSend');
+					assert(ajaxEventTriggered);
+					model.destroy();
+					done();
+				}
 			});
-			_.delay(function() {
-				$(document).off('ajaxSend');
-				assert(ajaxEventTriggered);
-				done();
-			}, 10);
 		});
 
 		it('fetch with global:false should not trigger ajaxSend', function(done) {
+			var model = new TestModel();
 			var ajaxEventTriggered = false;
 			$(document).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
 				ajaxEventTriggered = true;
 			});
 			model.fetch({
-				global: false
+				global: false,
+				success: function(model, response, options) {
+					$(document).off('ajaxSend');
+					assert(!ajaxEventTriggered);
+					model.destroy();
+					done();
+				}
 			});
-			_.delay(function() {
-				$(document).off('ajaxSend');
-				assert(!ajaxEventTriggered);
-				done();
-			}, 10);
 		});
+
+		it('if data is fetched a second time no ajaxSend should not be triggered', function(done) {
+			var model = new TestModel();
+			//first fetch
+			model.fetch({
+				cache: true,
+				success: function() {
+					var ajaxEventTriggered = false;
+					$(document).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
+						ajaxEventTriggered = true;
+					});
+					//second fetch
+					model.fetch({
+						cache: true,
+						success: function(model, response, options) {
+							$(document).off('ajaxSend');
+							assert(!ajaxEventTriggered);
+							model.destroy();
+							done();
+						}
+					});
+				}
+			})
+		});
+
+		afterEach(function(done) {
+			if (Backbone.fetchCache) {
+				Backbone.fetchCache.reset(done);
+			} else {
+				done();
+			}
+		})
 
 	}); //fetch
 
