@@ -4,7 +4,7 @@
   "description": "Agressive caching for Backbone's fetch method",
   "main": "backbone.fetch-cache.indexeddb.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha ./tests/"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb/issues"
   },
-  "homepage": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb#readme"
+  "homepage": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb#readme",
+  "devDependencies": {
+    "json-server": "^0.9.5",
+    "supertest": "^3.0.0"
+  }
 }
