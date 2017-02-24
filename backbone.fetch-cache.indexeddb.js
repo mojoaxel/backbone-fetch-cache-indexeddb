@@ -1,14 +1,18 @@
-// AMD wrapper from https://github.com/umdjs/umd/blob/master/amdWebGlobal.js
+/**
+ * @see https://github.com/mojoaxel/backbone-fetch-cache-indexeddb
+ * @copyright 2017 by Alexander Wunschik <mail@wunschik.it>
+ * @license MIT
+ */
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		// AMD. Register as an anonymous module and set browser global
 		define(['underscore', 'backbone', 'jquery'], function (_, Backbone, $) {
 			return (root.Backbone = factory(_, Backbone, $));
 		});
 	} else if (typeof exports !== 'undefined' && typeof require !== 'undefined') {
-		module.exports = factory(require('underscore'), require('backbone'), require('jquery'));
+		module.exports = factory(
+			require('underscore'), require('backbone'), require('jquery')
+		);
 	} else {
-		// Browser globals
 		root.Backbone = factory(root._, root.Backbone, root.jQuery);
 	}
 }(this, function (_, Backbone, $) {
@@ -18,28 +22,22 @@
 		 * Enable the fetchCache by default.
 		 * This can be overwritten by each request setting the "cahce" option in the fetch call.
 		 */
-		enabled: true,
-
-		/*
-		* Use only during development. This enables very verbouse console output.
-		*/
-		verbose: true
+		enabled: true
 	});
 
 	Backbone.fetchCache.memCache = (Backbone.fetchCache.memCache || {});
 
 
 	// Setup
-  var superMethods = {
-    modelFetch: Backbone.Model.prototype.fetch,
-    modelSync: Backbone.Model.prototype.sync,
-    collectionFetch: Backbone.Collection.prototype.fetch
-  };
+	var superMethods = {
+		modelFetch: Backbone.Model.prototype.fetch,
+		modelSync: Backbone.Model.prototype.sync,
+		collectionFetch: Backbone.Collection.prototype.fetch
+	};
 
+	//Use only during development. This enables very verbouse console output.
 	var log = function(msg) {
-		if (Backbone.fetchCache.verbose) {
-			console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
-		}
+		console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
 	}
 
 	// Throw an error when a URL is needed, and none is supplied.

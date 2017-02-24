@@ -23,7 +23,7 @@ describe('Backbone.Model', () => {
 		testServer.use(jsonServer.rewriter(rewriterRules));
 		testServer.use(jsonServer.router(db));
 
-		Backbone = require('../backbone.fetch-cache.indexeddb');
+		Backbone = require('../dist/backbone.fetch-cache.indexeddb');
 		Backbone.$ = $ = require('jquery');
 
 		TestModel = Backbone.Model.extend({
