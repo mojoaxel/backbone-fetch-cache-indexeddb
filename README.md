@@ -7,9 +7,11 @@ It overwrite the fetch Method of Backbone.Model and Backbone.Collection to cache
 
 ## Usage
 
+Just insert the script after Backbone.
+
 ```html
-<script src="backbone-min.js"></script>
-<script src="backbone.fetch-cache.indexeddb.min.js"></script>
+<script src="backbone.min.js"></script>
+<script src="dist/backbone.fetch-cache.indexeddb.min.js"></script>
 ```
 
 ```js
