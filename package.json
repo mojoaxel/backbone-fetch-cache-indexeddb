@@ -4,7 +4,7 @@
   "description": "Agressive caching for Backbone's fetch method",
   "main": "backbone.fetch-cache.indexeddb.js",
   "scripts": {
-    "test": "mocha ./tests/"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",

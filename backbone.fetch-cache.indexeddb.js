@@ -23,7 +23,7 @@
 		/*
 		* Use only during development. This enables very verbouse console output.
 		*/
-		verbose: false
+		verbose: true
 	});
 
 	Backbone.fetchCache.memCache = (Backbone.fetchCache.memCache || {});

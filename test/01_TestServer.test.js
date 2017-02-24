@@ -3,7 +3,7 @@ const path = require('path');
 const request = require('supertest');
 const jsonServer = require('json-server');
 
-describe('Make sure the TestServer supports everything we need', () => {
+describe('Make sure the TestServer provides everything we need', () => {
 	let server
 	let router
 	let db
