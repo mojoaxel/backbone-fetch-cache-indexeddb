@@ -1,24 +1,22 @@
 const assert = require('assert');
 const path = require('path');
 const request = require('supertest');
-const jsonServer = require('json-server');
+const TestServer = require('./TestServer');
 
 describe('Make sure the TestServer provides everything we need', () => {
 	let server
 	let router
 	let db
 
-	beforeEach(() => {
+	before((done) => {
 		db = require(path.join(__dirname, 'TestServerDB'));
-		rewriterRules = require(path.join(__dirname, 'TestServerRoutes.json'));
+		server = new TestServer({
+			db: db
+		}, done);
+	})
 
-		server = jsonServer.create();
-		server.use(jsonServer.defaults({
-			logger: false,
-			port: 8123
-		}));
-		server.use(jsonServer.rewriter(rewriterRules));
-		server.use(jsonServer.router(db));
+	after((done) => {
+		server.destroy(done);
 	})
 
 	describe('GET /api/misc/deep', () => {

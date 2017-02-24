@@ -4,7 +4,7 @@
   "description": "Agressive caching for Backbone's fetch method",
   "main": "backbone.fetch-cache.indexeddb.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha test/tests.js",
     "minify": "uglifyjs --comments --compress pure_funcs=\"'[log]'\" --output dist/backbone.fetch-cache.indexeddb.min.js backbone.fetch-cache.indexeddb.js 2>/dev/null"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "jsdom": "^9.11.0",
     "json-server": "^0.9.5",
     "mocha-jsdom": "^1.1.0",
+    "server-destroy": "^1.0.1",
     "supertest": "^3.0.0",
     "uglify-js": "^2.7.5"
   }

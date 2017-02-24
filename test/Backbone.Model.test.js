@@ -1,9 +1,9 @@
+const _ = require('underscore');
 const assert = require('assert');
 const path = require('path');
 const request = require('supertest');
-const jsonServer = require('json-server');
 const jsdom = require('mocha-jsdom');
-const _ = require('underscore');
+const TestServer = require('./TestServer');
 
 describe('Backbone.Model', () => {
 	var db, testServer;
@@ -13,16 +13,6 @@ describe('Backbone.Model', () => {
 	jsdom();
 
 	before((done) => {
-		db = require(path.join(__dirname, 'TestServerDB'));
-		rewriterRules = require(path.join(__dirname, 'TestServerRoutes.json'));
-
-		testServer = jsonServer.create();
-		testServer.use(jsonServer.defaults({
-			logger: false
-		}));
-		testServer.use(jsonServer.rewriter(rewriterRules));
-		testServer.use(jsonServer.router(db));
-
 		Backbone = require('../backbone.fetch-cache.indexeddb');
 		Backbone.$ = $ = require('jquery');
 
@@ -32,7 +22,22 @@ describe('Backbone.Model', () => {
 			}
 		});
 
-		testServer.listen(3000, done);
+		db = require(path.join(__dirname, 'TestServerDB'));
+		testServer = new TestServer({
+			db: db
+		}, done);
+	})
+
+	after((done) => {
+		testServer.destroy(done);
+	})
+
+	afterEach(function(done) {
+		if (Backbone.fetchCache) {
+			Backbone.fetchCache.reset(done);
+		} else {
+			done();
+		}
 	})
 
 	describe('fetch', () => {
@@ -157,14 +162,6 @@ describe('Backbone.Model', () => {
 				}
 			})
 		});
-
-		afterEach(function(done) {
-			if (Backbone.fetchCache) {
-				Backbone.fetchCache.reset(done);
-			} else {
-				done();
-			}
-		})
 
 	}); //fetch
 
