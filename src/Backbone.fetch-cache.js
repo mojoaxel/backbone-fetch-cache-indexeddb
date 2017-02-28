@@ -47,8 +47,7 @@ Backbone.fetchCache.init = function(settings, callback) {
 
 	checkSettings(cache.settings, 'name');
 
-	new SimpleStore(cache.settings, function(store) {
-		cache.store = store;
+	Backbone.fetchCache.store = new SimpleStore(cache.settings, function(store) {
 		cache.isInit = true;
 		callback(cache);
 	});
@@ -59,11 +58,11 @@ Backbone.fetchCache.init = function(settings, callback) {
 /**
  * TODO
  */
-Backbone.fetchCache.clear = function(settings, callback) {
+Backbone.fetchCache.clear = function(onSuccess) {
 	var cache = Backbone.fetchCache;
 	checkInit(cache);
 
-	cache.store.purge(callback);
+	Backbone.fetchCache.store.purge(onSuccess);
 
 	return cache;
 };

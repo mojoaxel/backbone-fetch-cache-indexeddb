@@ -51,7 +51,7 @@ describe('Backbone.fetchCache', function() {
 
 		it('exposes all IDBStore functions', function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function(cache) {
-				var store = cache.store;
+				var store = cache.store.idb;
 				expect(typeof(store.batch)).toBe("function");
 				expect(typeof(store.clear)).toBe("function");
 				expect(typeof(store.count)).toBe("function");
@@ -88,6 +88,24 @@ describe('Backbone.fetchCache', function() {
 			expect(function() {
 				var cache = new Backbone.fetchCache.init(settings, function() {});
 			}).toThrow(new Error('Setting missing. The FetchCache needs a setting: "name"'));
+		});
+
+		it('fetchcache funtions', function() {
+			expect(typeof(Backbone.fetchCache.init)).toBe("function");
+			expect(typeof(Backbone.fetchCache.clear)).toBe("function");
+		});
+	});
+
+	describe('fetchcache.clear', function() {
+		it('fetchcache.clear is a function', function() {
+			expect(typeof(Backbone.fetchCache.clear)).toBe("function");
+		});
+
+		it('fetchcache.clear returns callback', function(done) {
+			var cache = new Backbone.fetchCache.init(testSettings, function() {
+				expect(typeof(cache)).toBe("object");
+				Backbone.fetchCache.clear(done);
+			});
 		});
 	});
 

@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-jsbeautifier");
 	grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify', 'uglify']);
+	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify' /*, 'uglify'*/ ]);
 	grunt.registerTask('test', ['jasmine']);
 	grunt.registerTask('spec-server', ['jasmine::build', 'connect:spec:keepalive']);
 
