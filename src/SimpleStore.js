@@ -42,13 +42,20 @@ var Store = function(settings, onStoreReady) {
 };
 
 /**
+ * TODO
+ */
+Store.prototype.formatKey = function(key) {
+	return encodeURIComponent(key);
+};
+
+/**
  * Save key:value pair.
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#put
  */
 Store.prototype.setItem = function(key, value, onSuccess, onError) {
 	var store = this;
-	store.idb.put(key, value, onSuccess, onError || errorHandler);
+	store.idb.put(store.formatKey(key), value, onSuccess, onError || errorHandler);
 	return store;
 };
 
@@ -59,7 +66,7 @@ Store.prototype.setItem = function(key, value, onSuccess, onError) {
  */
 Store.prototype.getItem = function(key, onSuccess, onError) {
 	var store = this;
-	store.idb.get(key, onSuccess, onError || errorHandler);
+	store.idb.get(store.formatKey(key), onSuccess, onError || errorHandler);
 	return store;
 };
 
@@ -74,6 +81,7 @@ Store.prototype.purge = function(onSuccess, onError) {
 	store.idb.clear(function() {
 		store.idb.deleteDatabase(onSuccess, function(error) {
 			window.console.warn('Browser does not support IndexedDB deleteDatabase!');
+			onSuccess.call(this);
 		});
 	}, onError || errorHandler);
 	return store;

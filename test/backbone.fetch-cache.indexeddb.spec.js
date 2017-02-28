@@ -2,6 +2,10 @@ describe('Backbone.fetchCache', function() {
 	var testSettings, model, errorModel, collection, errorCollection, server, modelResponse, errorModelResponse, collectionResponse;
 
 	beforeEach(function() {
+		testSettings = {
+			name: "testStore"
+		};
+
 		model = new Backbone.Model();
 		model.url = '/model-cache-test';
 		errorModel = new Backbone.Model();
@@ -11,11 +15,6 @@ describe('Backbone.fetchCache', function() {
 		errorCollection = new Backbone.Collection();
 		errorCollection.url = '/collection-error-cache-test';
 
-		testSettings = {
-			name: "testStore"
-		};
-
-		server = sinon.fakeServer.create();
 		modelResponse = {
 			sausages: 'bacon'
 		};
@@ -24,6 +23,8 @@ describe('Backbone.fetchCache', function() {
 		}, {
 			rice: 'peas'
 		}];
+
+		server = sinon.fakeServer.create();
 		server.respondWith('GET', model.url, [200, {
 			'Content-Type': 'application/json'
 		}, JSON.stringify(modelResponse)]);
@@ -40,6 +41,7 @@ describe('Backbone.fetchCache', function() {
 
 	afterEach(function() {
 		server.restore();
+		Backbone.fetchCache.clear();
 	});
 
 	describe('IDBStore', function() {
@@ -104,8 +106,91 @@ describe('Backbone.fetchCache', function() {
 		it('fetchcache.clear returns callback', function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {
 				expect(typeof(cache)).toBe("object");
-				Backbone.fetchCache.clear(done);
+				expect(Backbone.fetchCache.isInit).toBe(true);
+				Backbone.fetchCache.clear(function() {
+					done();
+				});
 			});
+		});
+
+		it('fetchcache.clear sets isInit to false', function(done) {
+			var cache = new Backbone.fetchCache.init(testSettings, function() {
+				Backbone.fetchCache.clear(function() {
+					expect(Backbone.fetchCache.isInit).toBe(false);
+					done();
+				});
+			});
+		});
+
+		it('call fetchcache.clear without init results in no callback', function(done) {
+			var wasCalled = false;
+			Backbone.fetchCache.clear(function() {
+				wasCalled = true;
+			});
+			setTimeout(function() {
+				expect(wasCalled).toBe(false);
+				done();
+			}, 100);
+		});
+	});
+
+	describe('Backbone.Model.fetch', function() {
+
+		beforeEach(function(done) {
+			var cache = new Backbone.fetchCache.init(testSettings, function() {
+				expect(Backbone.fetchCache.isInit).toBe(true);
+				done();
+			});
+		});
+
+		afterEach(function(done) {
+			Backbone.fetchCache.clear(done);
+		});
+
+		it('simple model.fetch with success callback', function(done) {
+			model.fetch({
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(model.attributes).toEqual(modelResponse);
+					done();
+				}
+			});
+			server.respond();
+		});
+
+		it('model.fetch without cacheing enabled', function(done) {
+			model.fetch({
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(model.attributes).toEqual(modelResponse);
+					Backbone.fetchCache.store.getItem(model.url, function(value) {
+						expect(value).toBeUndefined();
+						Backbone.fetchCache.store.idb.count(function(count) {
+							expect(count).toEqual(0);
+							done();
+						});
+					});
+				}
+			});
+			server.respond();
+		});
+
+		it('model.fetch with cacheing enabled', function(done) {
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(model.attributes).toEqual(modelResponse);
+					/*
+					Backbone.fetchCache.store.getItem(model.url, function(value) {
+						expect(value).toEqual(modelResponse);
+						done();
+					});
+					*/
+					done();
+				}
+			});
+			server.respond();
 		});
 	});
 
