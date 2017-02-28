@@ -39,6 +39,6 @@
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "localforage": "^1.5.0"
+    "idb-wrapper": "^1.7.1"
   }
 }

@@ -48,24 +48,32 @@ describe('Backbone.fetchCache', function() {
     });
   });
 
-  describe('localforage', function() {
-    it('exposes localforage', function() {
-      var localforage = Backbone.fetchCache.localforage;
-      expect(typeof(localforage)).not.toBeUndefined();
+  describe('IDBStore', function() {
+    it('exposes IDBStore', function() {
+      var store = Backbone.fetchCache.store;
+      expect(typeof(store)).not.toBeUndefined();
     });
-    it('exposes all localforage functions', function() {
-      var localforage = Backbone.fetchCache.localforage;
-      expect(typeof(localforage.getItem)).toBe("function");
-      expect(typeof(localforage.setItem)).toBe("function");
-      expect(typeof(localforage.removeItem)).toBe("function");
-      expect(typeof(localforage.clear)).toBe("function");
-      expect(typeof(localforage.length)).toBe("function");
-      expect(typeof(localforage.key)).toBe("function");
-      expect(typeof(localforage.keys)).toBe("function");
-      expect(typeof(localforage.iterate)).toBe("function");
-      expect(typeof(localforage.setDriver)).toBe("function");
-      expect(typeof(localforage.config)).toBe("function");
-      expect(typeof(localforage.driver)).toBe("function");
+    it('exposes all IDBStore functions', function() {
+      var store = Backbone.fetchCache.store;
+      expect(typeof(store.batch)).toBe("function");
+      expect(typeof(store.clear)).toBe("function");
+      expect(typeof(store.count)).toBe("function");
+      expect(typeof(store.deleteDatabase)).toBe("function");
+      expect(typeof(store.get)).toBe("function");
+      expect(typeof(store.getAll)).toBe("function");
+      expect(typeof(store.getBatch)).toBe("function");
+      expect(typeof(store.getIndexList)).toBe("function");
+      expect(typeof(store.hasIndex)).toBe("function");
+      expect(typeof(store.indexComplies)).toBe("function");
+      expect(typeof(store.iterate)).toBe("function");
+			expect(typeof(store.makeKeyRange)).toBe("function");
+			expect(typeof(store.normalizeIndexData)).toBe("function");
+			expect(typeof(store.put)).toBe("function");
+			expect(typeof(store.putBatch)).toBe("function");
+			expect(typeof(store.query)).toBe("function");
+			expect(typeof(store.remove)).toBe("function");
+			expect(typeof(store.removeBatch)).toBe("function");
+			expect(typeof(store.upsertBatch)).toBe("function");
     });
   });
 
