@@ -1,46 +1,24 @@
 describe('Backbone.fetchCache', function() {
-	var testSettings, model, errorModel, collection, errorCollection, server, modelResponse, errorModelResponse, collectionResponse;
+	var testSettings, model, errorModel, collection, errorCollection, modelResponse, errorModelResponse, collectionResponse;
 
 	beforeEach(function() {
 		testSettings = {
 			name: "testStore"
 		};
 
-		model = new Backbone.Model();
-		model.url = '/model-cache-test';
-		errorModel = new Backbone.Model();
-		errorModel.url = '/model-error-cache-test';
-		collection = new Backbone.Collection();
-		collection.url = '/collection-cache-test';
-		errorCollection = new Backbone.Collection();
-		errorCollection.url = '/collection-error-cache-test';
+		var port = 8182;
 
 		modelResponse = {
 			sausages: 'bacon'
 		};
-		collectionResponse = [{
-			sausages: 'bacon'
-		}, {
-			rice: 'peas'
-		}];
 
-		server = sinon.fakeServer.create();
-		server.respondWith('GET', model.url, [200, {
-			'Content-Type': 'application/json'
-		}, JSON.stringify(modelResponse)]);
-		server.respondWith('GET', collection.url, [200, {
-			'Content-Type': 'application/json'
-		}, JSON.stringify(collectionResponse)]);
-		server.respondWith('GET', errorModel.url, [500, {
-			'Content-Type': 'test/html'
-		}, 'Server Error']);
-		server.respondWith('GET', errorCollection.url, [500, {
-			'Content-Type': 'test/html'
-		}, 'Server Error']);
+		model = new Backbone.Model();
+		model.url = 'http://localhost:' + port + '/model-cache-test';
+		collection = new Backbone.Collection();
+		collection.url = 'http://localhost:' + port + '/collection-cache-test';
 	});
 
 	afterEach(function() {
-		server.restore();
 		Backbone.fetchCache.clear();
 	});
 
@@ -155,7 +133,6 @@ describe('Backbone.fetchCache', function() {
 					done();
 				}
 			});
-			server.respond();
 		});
 
 		it('model.fetch without cacheing enabled', function(done) {
@@ -172,7 +149,6 @@ describe('Backbone.fetchCache', function() {
 					});
 				}
 			});
-			server.respond();
 		});
 
 		it('model.fetch with cacheing enabled', function(done) {
@@ -181,16 +157,12 @@ describe('Backbone.fetchCache', function() {
 				success: function(model, resp, options) {
 					expect(resp).toEqual(modelResponse);
 					expect(model.attributes).toEqual(modelResponse);
-					/*
 					Backbone.fetchCache.store.getItem(model.url, function(value) {
 						expect(value).toEqual(modelResponse);
 						done();
 					});
-					*/
-					done();
 				}
 			});
-			server.respond();
 		});
 	});
 

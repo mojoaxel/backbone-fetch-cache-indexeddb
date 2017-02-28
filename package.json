@@ -5,7 +5,7 @@
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
     "build": "grunt build",
-    "watch": "grunt watch",
+    "watch": "grunt spec-server-watch",
     "test": "grunt",
     "test-server": "grunt spec-server"
   },
@@ -34,7 +34,6 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jsbeautifier": "^0.2.13",
     "jquery": "^3.1.1",
-    "sinon": "^1.17.7",
     "uglify-js": "^2.7.5",
     "underscore": "^1.8.3"
   },

@@ -140,9 +140,9 @@ Backbone.Model.prototype.fetch = function(options) {
 			options.success.call(model, resp);
 		} else {
 			window.console.log("getItem", JSON.stringify(model), JSON.stringify(options));
-			//return model.sync('read', model, options);
+			return model.sync('read', model, options);
 
-
+			/*
 			// Delegate to the actual fetch method and store the attributes in the cache
 			var jqXHR = superMethods.modelFetch.apply(this, arguments);
 			// resolve the returned promise when the AJAX call completes
@@ -153,11 +153,10 @@ Backbone.Model.prototype.fetch = function(options) {
 				.fail(_.bind(deferred.reject, options.context, this));
 
 			deferred.abort = jqXHR.abort;
+			*/
 
 			// return a promise which provides the same methods as a jqXHR object
-			return deferred.promise();
-
-
+			//return deferred.promise();
 		}
 	}, function() {
 		window.console.error("error");

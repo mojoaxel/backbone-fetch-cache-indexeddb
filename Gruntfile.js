@@ -11,8 +11,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-browserify');
 
 	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify', 'uglify']);
-	grunt.registerTask('test', ['jasmine']);
-	grunt.registerTask('spec-server', ['jasmine::build', 'connect:spec:keepalive']);
+	grunt.registerTask('test', ['connect:dummy', 'jasmine']);
+	grunt.registerTask('spec-server', ['connect:dummy', 'jasmine::build', 'connect:spec:keepalive']);
+	grunt.registerTask('spec-server-watch', ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build', 'connect:dummy', 'connect:spec', 'watch']);
 
 	grunt.registerTask('default', ['build', 'test']);
 
@@ -25,22 +26,36 @@ module.exports = function(grunt) {
 				options: {
 					port: 8181
 				}
-			}
+			},
+			dummy: {
+				options: {
+					port: 8182,
+					middleware: [
+						function modelMiddleware(req, res, next) {
+							if (req.url === '/model-cache-test') {
+								res.setHeader('Content-Type', 'application/json');
+								res.setHeader('Access-Control-Allow-Origin', '*');
+								res.end(JSON.stringify({
+									"sausages": "bacon"
+								}));
+							}
+							return next();
+						}
+					]
+				}
+			},
 		},
 
 		jasmine: {
 			src: ['<%= pkg.main %>'],
 			options: {
 				specs: 'test/**/*.spec.js',
-				helpers: [
-					'node_modules/sinon/pkg/sinon.js'
-				],
 				vendor: [
 					'node_modules/jquery/dist/jquery.js',
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
 				],
-				timeout: 5000,
+				timeout: 15000,
 				phantomjs: {
 					'ignore-ssl-errors': true
 				}
@@ -103,8 +118,8 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			files: ['test/**/*.js', 'src/**/*.js'],
-			tasks: ['jshint', 'jsbeautifier', 'browserify', 'test']
+			files: ['test/**/*', 'src/**/*', 'Gruntfile.js'],
+			tasks: ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build']
 		}
 	});
 };

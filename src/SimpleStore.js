@@ -23,19 +23,12 @@ var Store = function(settings, onStoreReady) {
 	this.settings.name = settings.name || 'store';
 
 	this.idb = new IDBStore({
-		dbVersion: 2,
 		storeName: store.settings.name,
-		keyPath: 'customerid',
+		keyPath: null, //important for out-of-line keys!
 		autoIncrement: false,
 		onStoreReady: function() {
 			onStoreReady(store.idb);
-		},
-		indexes: [{
-			name: 'key',
-			keyPath: 'keyPath',
-			unique: true,
-			multiEntry: false
-		}]
+		}
 	});
 
 	return this;
