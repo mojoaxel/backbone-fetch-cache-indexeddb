@@ -1,4 +1,4 @@
-var Cache = require('./SimpleCache');
+var SimpleStore = require('./SimpleStore');
 
 // Setup
 var superMethods = {
@@ -22,12 +22,53 @@ var wrapError = function(model, options) {
 	};
 };
 
+Backbone.fetchCache = {
+	isInit: false
+};
+
+function checkSettings(settings, key) {
+	if (!settings || !settings[key]) {
+		throw new Error("Setting missing. The FetchCache needs a setting: \"" + key + "\"");
+	}
+}
+
+function checkInit(store) {
+	if (!store.isInit) {
+		throw new Error('Please initialize the store first by calling "init"');
+	}
+}
+
 /**
  * TODO
  */
-Backbone.fetchCache = new Cache({
-	name: "fetchCache"
-});
+Backbone.fetchCache.init = function(settings, callback) {
+	var cache = Backbone.fetchCache;
+	cache.settings = settings || {};
+
+	checkSettings(cache.settings, 'name');
+
+	new SimpleStore(cache.settings, function(store) {
+		cache.store = store;
+		cache.isInit = true;
+		callback(cache);
+	});
+
+	return cache;
+};
+
+/**
+ * TODO
+ */
+Backbone.fetchCache.clear = function(settings, callback) {
+	var cache = Backbone.fetchCache;
+	checkInit(cache);
+
+	cache.store.purge(callback);
+
+	return cache;
+};
+
+
 
 /**
  * TODO

@@ -48,14 +48,14 @@ module.exports = function(grunt) {
 		},
 
 		jshint: {
-			files: ['Gruntfile.js', 'src/**/*.js', 'spec/**/*.spec.js'],
+			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.spec.js'],
 			options: {
 				jshintrc: '.jshintrc'
 			}
 		},
 
 		jsbeautifier: {
-			files: ['src/**/*.js', 'Gruntfile.js'],
+			files: ['test/**/*.js', 'src/**/*.js', 'Gruntfile.js'],
 			options: {
 				js: {
 					indentWithTabs: true
@@ -103,7 +103,7 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			files: 'src/**/*.js',
+			files: ['test/**/*.js', 'src/**/*.js'],
 			tasks: ['build', 'test']
 		}
 	});
