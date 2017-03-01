@@ -5,7 +5,7 @@ It also works with Backbone-based frameworks like [Marionette](http://marionette
 
 It overwrite the fetch Method of Backbone.Model and Backbone.Collection to cache all fetched Data in the browsers [IndexedDB](https://www.w3.org/TR/IndexedDB/).
 
-## Usage
+## Initialization
 
 Just insert the script after Backbone.
 
@@ -13,6 +13,30 @@ Just insert the script after Backbone.
 <script src="backbone.min.js"></script>
 <script src="dist/backbone.fetch-cache.indexeddb.min.js"></script>
 ```
+
+First the IndexedDb needs to be initialized. This is only neccessare once e.g. after loading your Application:
+
+```js
+Backbone.fetchcache.init({
+	name: "MyApplicationCache", /// REQUIRED!
+	enabled: false,
+	maxAge: Infinity
+})
+```
+
+### name
+REQUIRED!<br>
+The Name of your IndexedDB Store. This should be unique to your application.
+
+### enabled
+Enable the cache by default for all requests. This can be overwritten by setting `cache:false` or `cache:true` on the inidividual `fetch` call. <br>
+[Default: `false`]
+
+### maxAge
+Default max age in seconds. This can be overwritten by setting `maxAge` on the inidividual `fetch` call. <br>
+[Default: `Infinity`]
+
+## Usage
 
 ```js
 MockyModel = Backbone.Model.extend({
@@ -31,21 +55,10 @@ model.fetch({
 model.fetch({
   // Check is the data is availible in the cache.
   cache: true,
-  // Cache expires in minutes. Here one hour.
-  maxAge: 60
+  // Cache expires in seconds. Here one hour.
+  maxAge: 60*60
 })
 ```
-
-## Options
-
-Enable the cache by default for all requests. This can be overwritten by setting `cache:false` on the inidividual `fetch` call. <br>
-[Default: `false`]
-
-```js
-Backbone.fetchCache.enabled = true;
-```
-
-During development you can enable logging to the cancole
 
 ## References
 

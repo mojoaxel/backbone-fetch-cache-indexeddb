@@ -70,12 +70,72 @@ describe('Backbone.fetchCache', function() {
 					expect(resp).toEqual(modelResponse);
 					expect(model.attributes).toEqual(modelResponse);
 					Backbone.fetchCache.store.getItem(model.url, function(value) {
-						expect(value).toEqual(modelResponse);
+						expect(value.data).toEqual(modelResponse);
 						done();
 					});
 				}
 			});
 		});
-	});
 
+		it('model.fetch with maxAge=1 second. Cache noes not expire', function(done) {
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					// overwrite cache with changed data
+					var newModelResponse = {
+						sausages: 'chicken'
+					};
+					var data = {
+						timestamp: new Date().getTime(),
+						data: newModelResponse
+					};
+					Backbone.fetchCache.store.setItem(model.url, data, function() {
+						setTimeout(function() {
+							// fetch a second time
+							model.fetch({
+								cache: true,
+								maxAge: 1,
+								success: function(model, resp, options) {
+									expect(resp).toEqual(newModelResponse);
+									expect(model.attributes).toEqual(newModelResponse);
+									done();
+								}
+							});
+						}, 500);
+					});
+				}
+			});
+		});
+
+		it('model.fetch with maxAge=1 second. Cache does expire', function(done) {
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					// overwrite cache with changed data
+					var newModelResponse = {
+						sausages: 'chicken'
+					};
+					var data = {
+						timestamp: new Date().getTime(),
+						data: newModelResponse
+					};
+					Backbone.fetchCache.store.setItem(model.url, data, function() {
+						setTimeout(function() {
+							// fetch a second time
+							model.fetch({
+								cache: true,
+								maxAge: 1,
+								success: function(model, resp, options) {
+									expect(resp).toEqual(modelResponse);
+									expect(model.attributes).toEqual(modelResponse);
+									done();
+								}
+							});
+						}, 1500);
+					});
+				}
+			});
+		});
+
+	});
 });
