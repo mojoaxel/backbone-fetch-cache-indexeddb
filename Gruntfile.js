@@ -55,7 +55,7 @@ module.exports = function(grunt) {
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
 				],
-				timeout: 15000,
+				timeout: 5000,
 				phantomjs: {
 					'ignore-ssl-errors': true
 				}

@@ -26,6 +26,7 @@ var Store = function(settings, onStoreReady) {
 		storeName: store.settings.name,
 		keyPath: null, //important for out-of-line keys!
 		autoIncrement: false,
+		onError: errorHandler,
 		onStoreReady: function() {
 			onStoreReady(store.idb);
 		}
@@ -72,10 +73,12 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
 	store.idb.clear(function() {
-		store.idb.deleteDatabase(onSuccess, function(error) {
-			window.console.warn('Browser does not support IndexedDB deleteDatabase!');
-			onSuccess.call(this);
+		store.idb.deleteDatabase(function() {
+			// database deleted
+		}, function(error) {
+			// Browser does not support IndexedDB deleteDatabase
 		});
+		onSuccess.call(this);
 	}, onError || errorHandler);
 	return store;
 };

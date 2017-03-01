@@ -67,7 +67,7 @@ Backbone.fetchCache.clear = function(onSuccess) {
 	cache.store.purge(function() {
 		cache.isInit = false;
 		if (onSuccess) {
-			onSuccess();
+			onSuccess.call(cache);
 		}
 	});
 
