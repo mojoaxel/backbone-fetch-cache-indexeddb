@@ -21,20 +21,23 @@ describe('Backbone.fetchCache', function() {
 		beforeEach(function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {
 				expect(Backbone.fetchCache.isInit).toBe(true);
-				window.console.log("beforeEach");
-				done();
+				setTimeout(function() {
+					//TODO now clear yet, why we the timeout here
+					done();
+				}, 100);
 			});
 		});
 
 		afterEach(function(done) {
 			Backbone.fetchCache.clear(function() {
-				window.console.log("afterEach");
-				done();
+				setTimeout(function() {
+					//TODO now clear yet, why we the timeout here
+					done();
+				}, 100);
 			});
 		});
 
 		it('simple model.fetch with success callback', function(done) {
-			window.console.log("it1");
 			model.fetch({
 				success: function(model, resp, options) {
 					expect(resp).toEqual(modelResponse);
@@ -45,13 +48,12 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('model.fetch without cacheing enabled', function(done) {
-			window.console.log("it2");
 			model.fetch({
 				success: function(model, resp, options) {
 					expect(resp).toEqual(modelResponse);
 					expect(model.attributes).toEqual(modelResponse);
 					Backbone.fetchCache.store.getItem(model.url, function(value) {
-						expect(value).toBeUndefined();
+						expect(value).toBe(null);
 						Backbone.fetchCache.store.idb.count(function(count) {
 							expect(count).toEqual(0);
 							done();

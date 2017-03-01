@@ -124,7 +124,7 @@ Backbone.Model.prototype.fetch = function(options) {
 		if (!dataFromCache) {
 			Backbone.fetchCache.store.setItem(_.result(model, "url"), resp, function() {
 				model.trigger('cachesync', model, resp, options);
-				window.console.log("setItem", JSON.stringify(resp));
+				window.console.log("setItem", JSON.stringify(resp), JSON.stringify(options));
 				ready();
 			});
 		} else {
@@ -139,30 +139,22 @@ Backbone.Model.prototype.fetch = function(options) {
 			dataFromCache = true;
 			options.success.call(model, resp);
 		} else {
-			window.console.log("getItem", JSON.stringify(model), JSON.stringify(options));
-			return model.sync('read', model, options);
-
-			/*
+			dataFromCache = false;
 			// Delegate to the actual fetch method and store the attributes in the cache
-			var jqXHR = superMethods.modelFetch.apply(this, arguments);
+			//var jqXHR = superMethods.modelFetch.apply(model, arguments);
+			var jqXHR = superMethods.modelSync.call(model, 'read', model, options);
+
 			// resolve the returned promise when the AJAX call completes
-			jqXHR.done(_.bind(deferred.resolve, options.context, this))
-				// Set the new data in the cache
-				.done(_.bind(options.success, null, this, options))
-				// Reject the promise on fail
-				.fail(_.bind(deferred.reject, options.context, this));
-
+			jqXHR.done(_.bind(deferred.resolve, options.context, model))
+				.fail(_.bind(deferred.reject, options.context, model));
 			deferred.abort = jqXHR.abort;
-			*/
-
-			// return a promise which provides the same methods as a jqXHR object
-			//return deferred.promise();
 		}
 	}, function() {
 		window.console.error("error");
 	});
 
-	//return model.sync('read', model, options);
+	// return a promise which provides the same methods as a jqXHR object
+	return deferred.promise();
 };
 
 module.exports = Backbone;

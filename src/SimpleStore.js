@@ -38,8 +38,22 @@ var Store = function(settings, onStoreReady) {
 /**
  * TODO
  */
-Store.prototype.formatKey = function(key) {
+Store.prototype._formatKey = function(key) {
 	return encodeURIComponent(key);
+};
+
+/**
+ * TODO
+ */
+Store.prototype._serializeData = function(data) {
+	return data ? JSON.stringify(data) : null;
+};
+
+/**
+ * TODO
+ */
+Store.prototype._deSerializeData = function(data) {
+	return data ? JSON.parse(data) : null;
 };
 
 /**
@@ -49,7 +63,7 @@ Store.prototype.formatKey = function(key) {
  */
 Store.prototype.setItem = function(key, value, onSuccess, onError) {
 	var store = this;
-	store.idb.put(store.formatKey(key), value, onSuccess, onError || errorHandler);
+	store.idb.put(store._formatKey(key), store._serializeData(value), onSuccess, onError || errorHandler);
 	return store;
 };
 
@@ -60,7 +74,9 @@ Store.prototype.setItem = function(key, value, onSuccess, onError) {
  */
 Store.prototype.getItem = function(key, onSuccess, onError) {
 	var store = this;
-	store.idb.get(store.formatKey(key), onSuccess, onError || errorHandler);
+	store.idb.get(store._formatKey(key), function(data) {
+		onSuccess(store._deSerializeData(data));
+	}, onError || errorHandler);
 	return store;
 };
 
