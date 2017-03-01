@@ -39,7 +39,7 @@ var Store = function(settings, onStoreReady) {
  * TODO
  */
 Store.prototype._formatKey = function(key) {
-	return encodeURIComponent(key);
+	return encodeURIComponent(key).replace(/%2F/g, "_");;
 };
 
 /**

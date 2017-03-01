@@ -46,7 +46,9 @@ Backbone.fetchCache.init = function(settings, callback) {
 
 	Backbone.fetchCache.store = new SimpleStore(cache.settings, function(store) {
 		cache.isInit = true;
-		callback(cache);
+		if (callback) {
+			callback(cache);
+		}
 	});
 
 	return cache;
@@ -100,6 +102,8 @@ Backbone.Model.prototype.fetch = function(options) {
 		context: options.context || model
 	}, options);
 
+	window.console.log("Options: ", JSON.stringify(options));
+
 	//Bypass caching if it's not enabled
 	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
 		return superMethods.modelFetch.apply(this, arguments);
@@ -135,11 +139,12 @@ Backbone.Model.prototype.fetch = function(options) {
 		}
 
 		if (!dataFromCache) {
+			var key = _.result(model, "url") + JSON.stringify(options.data || {});
 			var data = {
 				timestamp: new Date().getTime(),
 				data: resp
 			};
-			Backbone.fetchCache.store.setItem(_.result(model, "url"), data, function() {
+			Backbone.fetchCache.store.setItem(key, data, function() {
 				//model.trigger('cachesync', model, resp, options);
 				ready();
 			});
@@ -150,7 +155,8 @@ Backbone.Model.prototype.fetch = function(options) {
 
 	wrapError(this, options); // from original source
 
-	Backbone.fetchCache.store.getItem(_.result(model, "url"), function(resp) {
+	var key = _.result(model, "url") + JSON.stringify(options.data || {});
+	Backbone.fetchCache.store.getItem(key, function(resp) {
 
 		if (resp) {
 			if (!resp.timestamp) {
