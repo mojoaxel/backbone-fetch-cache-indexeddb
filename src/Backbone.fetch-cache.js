@@ -32,12 +32,6 @@ function checkSettings(settings, key) {
 	}
 }
 
-function checkInit(store) {
-	if (!store.isInit) {
-		throw new Error('Please initialize the store first by calling "init"');
-	}
-}
-
 /**
  * TODO
  */
@@ -58,9 +52,20 @@ Backbone.fetchCache.init = function(settings, callback) {
 /**
  * TODO
  */
+Backbone.fetchCache.chechIfInit = function() {
+	var cache = Backbone.fetchCache;
+	if (!cache.isInit) {
+		window.console.warn('FetchCache is not initialized and therefore not active. Please initialize the store first by calling "Backbone.fetchcache.init"');
+	}
+	return cache.isInit;
+};
+
+/**
+ * TODO
+ */
 Backbone.fetchCache.clear = function(onSuccess) {
 	var cache = Backbone.fetchCache;
-	if (!Backbone.fetchCache.store || !Backbone.fetchCache.isInit) {
+	if (!cache.store || !cache.chechIfInit()) {
 		return cache;
 	}
 
@@ -93,10 +98,10 @@ Backbone.Model.prototype.fetch = function(options) {
 	}, options);
 
 	//Bypass caching if it's not enabled
-	if (!Backbone.fetchCache.enabled && !options.cache) {
+	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
 		return superMethods.modelFetch.apply(this, arguments);
 	}
-	checkInit(Backbone.fetchCache);
+
 
 	var dataFromCache = false;
 	var orgSuccess = options.success; // from original source

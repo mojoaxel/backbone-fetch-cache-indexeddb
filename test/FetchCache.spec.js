@@ -1,6 +1,8 @@
 describe('Backbone.fetchCache', function() {
 	var testSettings, model, errorModel, collection, errorCollection, modelResponse, errorModelResponse, collectionResponse;
 
+	var console = window.console;
+
 	testSettings = {
 		name: "testStore"
 	};
@@ -96,14 +98,32 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('call fetchcache.clear without init results in no callback', function(done) {
+			spyOn(console, 'warn');
 			var wasCalled = false;
 			Backbone.fetchCache.clear(function() {
 				wasCalled = true;
 			});
 			setTimeout(function() {
 				expect(wasCalled).toBe(false);
+				expect(console.warn).toHaveBeenCalled();
 				done();
 			}, 100);
+		});
+
+		it('model.fetch without calling fetchcache.init() first', function(done) {
+			spyOn(console, 'warn');
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(model.attributes).toEqual(modelResponse);
+					Backbone.fetchCache.store.getItem(model.url, function(value) {
+						expect(value).toBe(null);
+						expect(console.warn).toHaveBeenCalled();
+						done();
+					});
+				}
+			});
 		});
 	});
 

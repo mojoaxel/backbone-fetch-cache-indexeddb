@@ -88,14 +88,7 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
  */
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
-	store.idb.clear(function() {
-		store.idb.deleteDatabase(function() {
-			// database deleted
-		}, function(error) {
-			// Browser does not support IndexedDB deleteDatabase
-		});
-		onSuccess.call(this);
-	}, onError || errorHandler);
+	store.idb.clear(onSuccess, onError || errorHandler);
 	return store;
 };
 

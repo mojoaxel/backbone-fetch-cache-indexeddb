@@ -1,6 +1,8 @@
 describe('Backbone.fetchCache', function() {
 	var testSettings, model, errorModel, collection, errorCollection, modelResponse, errorModelResponse, collectionResponse;
 
+	var console = window.console;
+
 	testSettings = {
 		name: "testStore"
 	};
@@ -21,20 +23,18 @@ describe('Backbone.fetchCache', function() {
 		beforeEach(function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {
 				expect(Backbone.fetchCache.isInit).toBe(true);
-				setTimeout(function() {
-					//TODO now clear yet, why we the timeout here
-					done();
-				}, 100);
+				done();
 			});
 		});
 
 		afterEach(function(done) {
-			Backbone.fetchCache.clear(function() {
-				setTimeout(function() {
-					//TODO now clear yet, why we the timeout here
+			if (Backbone.fetchCache.isInit) {
+				Backbone.fetchCache.clear(function() {
 					done();
-				}, 100);
-			});
+				});
+			} else {
+				done();
+			}
 		});
 
 		it('simple model.fetch with success callback', function(done) {
