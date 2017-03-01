@@ -10,7 +10,7 @@ describe('Backbone.fetchCache', function() {
 	var port = 8182;
 
 	modelResponse = {
-		sausages: 'bacon'
+		"foo": "bar"
 	};
 
 	model = new Backbone.Model();

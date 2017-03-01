@@ -1,5 +1,5 @@
 describe('Backbone.fetchCache', function() {
-	var testSettings, model, errorModel, collection, errorCollection, modelResponse, errorModelResponse, collectionResponse;
+	var testSettings, model, errorModel, modelResponse, newModelResponse;
 
 	var console = window.console;
 
@@ -10,13 +10,14 @@ describe('Backbone.fetchCache', function() {
 	var port = 8182;
 
 	modelResponse = {
-		sausages: 'bacon'
+		"foo": "bar"
+	};
+	newModelResponse = {
+		"hip": "hop"
 	};
 
 	model = new Backbone.Model();
 	model.url = 'http://localhost:' + port + '/model-cache-test';
-	collection = new Backbone.Collection();
-	collection.url = 'http://localhost:' + port + '/collection-cache-test';
 
 	describe('Backbone.Model.fetch', function() {
 
@@ -82,9 +83,6 @@ describe('Backbone.fetchCache', function() {
 				cache: true,
 				success: function(model, resp, options) {
 					// overwrite cache with changed data
-					var newModelResponse = {
-						sausages: 'chicken'
-					};
 					var data = {
 						timestamp: new Date().getTime(),
 						data: newModelResponse
@@ -101,7 +99,7 @@ describe('Backbone.fetchCache', function() {
 									done();
 								}
 							});
-						}, 500);
+						}, 100);
 					});
 				}
 			});
@@ -112,9 +110,6 @@ describe('Backbone.fetchCache', function() {
 				cache: true,
 				success: function(model, resp, options) {
 					// overwrite cache with changed data
-					var newModelResponse = {
-						sausages: 'chicken'
-					};
 					var data = {
 						timestamp: new Date().getTime(),
 						data: newModelResponse
@@ -131,7 +126,7 @@ describe('Backbone.fetchCache', function() {
 									done();
 								}
 							});
-						}, 1500);
+						}, 1010);
 					});
 				}
 			});

@@ -36,8 +36,20 @@ module.exports = function(grunt) {
 								res.setHeader('Content-Type', 'application/json');
 								res.setHeader('Access-Control-Allow-Origin', '*');
 								res.end(JSON.stringify({
-									"sausages": "bacon"
+									"foo": "bar"
 								}));
+							}
+							return next();
+						},
+						function collectionMiddleware(req, res, next) {
+							if (req.url === '/collection-cache-test') {
+								res.setHeader('Content-Type', 'application/json');
+								res.setHeader('Access-Control-Allow-Origin', '*');
+								res.end(JSON.stringify([{
+									"foo": "bar"
+								}, {
+									"numbers": "123"
+								}]));
 							}
 							return next();
 						}

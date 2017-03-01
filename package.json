@@ -15,6 +15,7 @@
   },
   "keywords": [
     "backbone",
+    "fetch",
     "cache"
   ],
   "author": "Alexander Wunschik <mail@wunschik.it>",

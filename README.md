@@ -1,9 +1,18 @@
 # backbone-fetch-cache-indexeddb
 
+**WARNING!!**<br>
+**This project is in a very early stage and is in activ developed. Consider this BETA**
+
 This is a plugin for [Backbone.js](http://backbonejs.org/). <br>
 It also works with Backbone-based frameworks like [Marionette](http://marionettejs.com/).
 
-It overwrite the fetch Method of Backbone.Model and Backbone.Collection to cache all fetched Data in the browsers [IndexedDB](https://www.w3.org/TR/IndexedDB/).
+It overwrites the *fetch* Method of Backbone.Model and Backbone.Collection and cachees all fetched data in the browsers [IndexedDB](https://www.w3.org/TR/IndexedDB/).
+
+This can reduces unesseccary API calls significantly!
+
+## Installation
+
+`npm install --save backbone-fetch-cache-indexeddb`
 
 ## Initialization
 
