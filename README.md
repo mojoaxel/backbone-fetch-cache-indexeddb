@@ -91,6 +91,14 @@ model.fetch({
 })
 ```
 
+## Development
+
+You should never manually change files in the `dist` folder. They are generated.
+
+After changing the sources in the `src` folder you can run `npm run test` to build an test your cahnges.
+
+During development you can start the tests in your local browser with `npm run watch`. This will also watch for changes in the tests or the sources.
+
 ## References
 
 * This software is heavily inspired by [backbone-fetch-cache](https://github.com/madglory/backbone-fetch-cache).
