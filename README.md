@@ -73,6 +73,14 @@ model.fetch({
   // Cache expires in seconds. Here one hour.
   maxAge: 60*60
 })
+
+// 3. force a refresh from server
+model.fetch({
+  // Enable chaching for this request
+  cache: true,
+  // force a refresh from server
+  maxAge: -1
+})
 ```
 
 ## References

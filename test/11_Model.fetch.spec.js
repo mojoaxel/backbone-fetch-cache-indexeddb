@@ -5,11 +5,11 @@ describe('Backbone.Model', function() {
 		name: "testStore"
 	};
 
-	var modelResponse = {
+	var truth = {
 		"foo": "bar"
 	};
-	var newModelResponse = {
-		"hip": "hop"
+	var alternativeTruth = {
+		"so": "sad"
 	};
 
 	var model = new Backbone.Model();
@@ -22,7 +22,7 @@ describe('Backbone.Model', function() {
 	describe('TestServer', function() {
 		it('servers dummy model', function(done) {
 			$.getJSON(model.url, function(data) {
-				expect(data).toEqual(modelResponse);
+				expect(data).toEqual(truth);
 				done();
 			});
 		});
@@ -50,8 +50,8 @@ describe('Backbone.Model', function() {
 		it('simple model.fetch with success callback', function(done) {
 			model.fetch({
 				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(model.attributes).toEqual(modelResponse);
+					expect(resp).toEqual(truth);
+					expect(model.attributes).toEqual(truth);
 					done();
 				}
 			});
@@ -60,8 +60,8 @@ describe('Backbone.Model', function() {
 		it('model.fetch without cacheing enabled', function(done) {
 			model.fetch({
 				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(model.attributes).toEqual(modelResponse);
+					expect(resp).toEqual(truth);
+					expect(model.attributes).toEqual(truth);
 					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
 						expect(value).toBe(null);
 						Backbone.fetchCache.store.idb.count(function(count) {
@@ -77,11 +77,11 @@ describe('Backbone.Model', function() {
 			model.fetch({
 				cache: true,
 				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(model.attributes).toEqual(modelResponse);
+					expect(resp).toEqual(truth);
+					expect(model.attributes).toEqual(truth);
 					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
 						expect(typeof(value)).toBe("object");
-						expect(value.data).toEqual(modelResponse);
+						expect(value.data).toEqual(truth);
 						done();
 					});
 				}
@@ -96,11 +96,11 @@ describe('Backbone.Model', function() {
 					second: "456"
 				},
 				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(model.attributes).toEqual(modelResponse);
+					expect(resp).toEqual(truth);
+					expect(model.attributes).toEqual(truth);
 					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
 						expect(typeof(value)).toBe("object");
-						expect(value.data).toEqual(modelResponse);
+						expect(value.data).toEqual(truth);
 						done();
 					});
 				}
@@ -114,7 +114,7 @@ describe('Backbone.Model', function() {
 					// overwrite cache with changed data
 					var data = {
 						timestamp: new Date().getTime(),
-						data: newModelResponse
+						data: alternativeTruth
 					};
 					// overwrite cache with new data
 					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
@@ -124,12 +124,38 @@ describe('Backbone.Model', function() {
 								cache: true,
 								maxAge: 1,
 								success: function(model, resp, options) {
-									expect(resp).toEqual(newModelResponse);
-									expect(model.attributes).toEqual(newModelResponse);
+									expect(resp).toEqual(alternativeTruth);
+									expect(model.attributes).toEqual(alternativeTruth);
 									done();
 								}
 							});
 						}, 100);
+					});
+				}
+			});
+		});
+
+		it('model.fetch with forced update', function(done) {
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					// overwrite cache with changed data
+					var data = {
+						timestamp: new Date().getTime(),
+						data: alternativeTruth
+					};
+					// overwrite cache with new data
+					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
+						// fetch a second time with forced update
+						model.fetch({
+							cache: true,
+							maxAge: 0,
+							success: function(model, resp, options) {
+								expect(resp).toEqual(truth);
+								expect(model.attributes).toEqual(truth);
+								done();
+							}
+						});
 					});
 				}
 			});
@@ -142,7 +168,7 @@ describe('Backbone.Model', function() {
 					// overwrite cache with changed data
 					var data = {
 						timestamp: new Date().getTime(),
-						data: newModelResponse
+						data: alternativeTruth
 					};
 					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						setTimeout(function() {
@@ -151,8 +177,8 @@ describe('Backbone.Model', function() {
 								cache: true,
 								maxAge: 1,
 								success: function(model, resp, options) {
-									expect(resp).toEqual(modelResponse);
-									expect(model.attributes).toEqual(modelResponse);
+									expect(resp).toEqual(truth);
+									expect(model.attributes).toEqual(truth);
 									done();
 								}
 							});

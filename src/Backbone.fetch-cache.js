@@ -103,9 +103,10 @@ Backbone.Model.prototype.fetch = function(options) {
 
 	// from original source
 	options = _.extend({
-		parse: true,
-		context: options.context || model
+		parse: true
 	}, options);
+
+	options.context = options.context || this;
 
 	//Bypass caching if it's not enabled
 	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
@@ -117,28 +118,29 @@ Backbone.Model.prototype.fetch = function(options) {
 	var orgSuccess = options.success; // from original source
 	options.success = function(resp) { // from original source
 
-		// from original source
-		var serverAttrs = options.parse ? model.parse(resp, options) : resp;
-
-		// clear the model
-		model.clear({
-			silent: true
-		});
-
-		// from original source
-		if (!model.set(serverAttrs, options)) {
-			return false;
-		}
+		// simulate a ajax success
+		deferred.resolveWith(options.context, [model]);
 
 		function ready() {
+			// from original source
+			var serverAttrs = options.parse ? model.parse(resp, options) : resp;
+
+			// clear the model
+			model.clear({
+				silent: true
+			});
+
+			// from original source
+			if (!model.set(serverAttrs, options)) {
+				return false;
+			}
+
 			// from original source
 			if (orgSuccess) {
 				orgSuccess.call(options.context, model, resp, options);
 			}
 			// from original source
 			model.trigger('sync', model, resp, options);
-
-			deferred.resolveWith(options.context, [model]);
 		}
 
 		if (!dataFromCache) {
@@ -169,9 +171,18 @@ Backbone.Model.prototype.fetch = function(options) {
 				throw new Error("Cache data has no data");
 			}
 
-			// check timestamp
-			var maxAge = (options.maxAge || Backbone.fetchCache.maxAge) * 1000;
+			// try to get "maxAge" from options
+			var maxAge = _.result(options, "maxAge");
+
+			// if maxAge is invalid use global settings
+			maxAge = _.isNumber(maxAge) ? maxAge : Backbone.fetchCache.maxAge;
+
+			// convert seconds to milliseconds
+			maxAge *= 1000;
+
+			// get age (= difference from now) in milliseconds
 			var age = Math.round(new Date().getTime() - resp.timestamp);
+
 			if (age < maxAge) {
 				// return data from cache
 				dataFromCache = true;
@@ -212,9 +223,10 @@ Backbone.Collection.prototype.fetch = function(options) {
 
 	// from original source
 	options = _.extend({
-		parse: true,
-		context: options.context || collection
+		parse: true
 	}, options);
+
+	options.context = options.context || this;
 
 	//Bypass caching if it's not enabled
 	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
@@ -225,12 +237,14 @@ Backbone.Collection.prototype.fetch = function(options) {
 	var dataFromCache = false;
 	var orgSuccess = options.success; // from original source
 	options.success = function(resp) { // from original source
-
-		// from original source
-		var method = options.reset ? 'reset' : 'set';
-		collection[method](resp, options);
-
 		function ready() {
+			// parse the response
+			resp = options.parse ? collection.parse(resp, options) : resp;
+
+			// from original source
+			var method = options.reset ? 'reset' : 'set';
+			collection[method](resp, options);
+
 			// from original source
 			if (orgSuccess) {
 				orgSuccess.call(options.context, collection, resp, options);
@@ -269,9 +283,18 @@ Backbone.Collection.prototype.fetch = function(options) {
 				throw new Error("Cache data has no data");
 			}
 
-			// check timestamp
-			var maxAge = (options.maxAge || Backbone.fetchCache.maxAge) * 1000;
+			// try to get "maxAge" from options
+			var maxAge = _.result(options, "maxAge");
+
+			// if maxAge is invalid use global settings
+			maxAge = _.isNumber(maxAge) ? maxAge : Backbone.fetchCache.maxAge;
+
+			// convert seconds to milliseconds
+			maxAge *= 1000;
+
+			// get age (= difference from now) in milliseconds
 			var age = Math.round(new Date().getTime() - resp.timestamp);
+
 			if (age < maxAge) {
 				// return data from cache
 				dataFromCache = true;

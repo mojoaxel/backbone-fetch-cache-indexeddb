@@ -12,13 +12,13 @@
 			return _.result(modCol, "url") + (options.data ? '?' + $.param(options.data) : '');
 		}
 
-		var collectionResponse = [{
+		var truth = [{
 			"foo": "bar"
 		}, {
 			"numbers": "123"
 		}];
 
-		var newCollectionResponse = [{
+		var alternativeTruth = [{
 			"numbers": "345"
 		}, {
 			"fnord": "zero"
@@ -27,7 +27,7 @@
 		describe('TestServer', function() {
 			it('serves dummy collection', function(done) {
 				$.getJSON(collection.url, function(data) {
-					expect(data).toEqual(collectionResponse);
+					expect(data).toEqual(truth);
 					done();
 				});
 			});
@@ -54,7 +54,7 @@
 			it('simple collection.fetch with success callback', function(done) {
 				collection.fetch({
 					success: function(collection, resp, options) {
-						expect(resp).toEqual(collectionResponse);
+						expect(resp).toEqual(truth);
 						done();
 					}
 				});
@@ -63,7 +63,7 @@
 			it('collection.fetch without cacheing enabled', function(done) {
 				collection.fetch({
 					success: function(collection, resp, options) {
-						expect(resp).toEqual(collectionResponse);
+						expect(resp).toEqual(truth);
 						Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
 							expect(value).toBe(null);
 							Backbone.fetchCache.store.idb.count(function(count) {
@@ -79,10 +79,10 @@
 				collection.fetch({
 					cache: true,
 					success: function(collection, resp, options) {
-						expect(resp).toEqual(collectionResponse);
+						expect(resp).toEqual(truth);
 						Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
 							expect(typeof(value)).toBe("object");
-							expect(value.data).toEqual(collectionResponse);
+							expect(value.data).toEqual(truth);
 							done();
 						});
 					}
@@ -97,10 +97,10 @@
 						second: "456"
 					},
 					success: function(collection, resp, options) {
-						expect(resp).toEqual(collectionResponse);
+						expect(resp).toEqual(truth);
 						Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
 							expect(typeof(value)).toBe("object");
-							expect(value.data).toEqual(collectionResponse);
+							expect(value.data).toEqual(truth);
 							done();
 						});
 					}
@@ -114,7 +114,7 @@
 						// overwrite cache with changed data
 						var data = {
 							timestamp: new Date().getTime(),
-							data: newCollectionResponse
+							data: alternativeTruth
 						};
 						Backbone.fetchCache.store.setItem(genUrl(collection, options), data, function() {
 							setTimeout(function() {
@@ -123,11 +123,35 @@
 									cache: true,
 									maxAge: 1,
 									success: function(collection, resp, options) {
-										expect(resp).toEqual(newCollectionResponse);
+										expect(resp).toEqual(alternativeTruth);
 										done();
 									}
 								});
 							}, 100);
+						});
+					}
+				});
+			});
+
+			it('collection.fetch with forced update', function(done) {
+				collection.fetch({
+					cache: true,
+					success: function(collection, resp, options) {
+						// overwrite cache with changed data
+						var data = {
+							timestamp: new Date().getTime(),
+							data: alternativeTruth
+						};
+						Backbone.fetchCache.store.setItem(genUrl(collection, options), data, function() {
+							// fetch a second time with forced update
+							collection.fetch({
+								cache: true,
+								maxAge: 0,
+								success: function(collection, resp, options) {
+									expect(resp).toEqual(truth);
+									done();
+								}
+							});
 						});
 					}
 				});
@@ -140,7 +164,7 @@
 						// overwrite cache with changed data
 						var data = {
 							timestamp: new Date().getTime(),
-							data: newCollectionResponse
+							data: alternativeTruth
 						};
 						Backbone.fetchCache.store.setItem(genUrl(collection, options), data, function() {
 							setTimeout(function() {
@@ -149,7 +173,7 @@
 									cache: true,
 									maxAge: 1,
 									success: function(collection, resp, options) {
-										expect(resp).toEqual(collectionResponse);
+										expect(resp).toEqual(truth);
 										done();
 									}
 								});
