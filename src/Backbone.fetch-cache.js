@@ -27,8 +27,13 @@ var wrapError = function(model, options) {
 	};
 };
 
-function genUrl(modCol, options) {
-	return _.result(modCol, "url") + (options.data ? '?' + $.param(options.data) : '');
+function getUrl(modCol, options) {
+	options = options || {};
+	var url = _.result(modCol, "url");
+	if (_.isUndefined(url) || !url.length) {
+		throw new Error('A "url" property or function must be specified');
+	}
+	return url + (options.data ? '?' + $.param(options.data) : '');
 }
 
 Backbone.fetchCache = {
@@ -122,9 +127,8 @@ function fetch(options) {
 	var COLLECTION = "collection";
 	var type = (this instanceof Backbone.Model) ? MODEL : COLLECTION;
 
-	// from original source
 	var modCol = this;
-	var deferred = new $.Deferred();
+	var key = getUrl(modCol, options);
 
 	// from original source
 	options = _.extend({
@@ -138,9 +142,12 @@ function fetch(options) {
 		return superMethods[type].fetch.apply(this, arguments);
 	}
 
+	var deferred = new $.Deferred();
+	modCol.trigger('request', modCol, deferred, options);
+
 	var dataFromCache = false;
-	var key = genUrl(modCol, options);
 	var orgSuccess = options.success; // from original source
+
 	options.success = function(resp) { // from original source
 
 		// simulate a ajax success
