@@ -10,10 +10,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-jsbeautifier");
 	grunt.loadNpmTasks('grunt-browserify');
 
-	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify', 'uglify']);
-	grunt.registerTask('test', ['connect:dummy', 'jasmine']);
-	grunt.registerTask('spec-server', ['connect:dummy', 'jasmine::build', 'connect:spec:keepalive']);
-	grunt.registerTask('spec-server-watch', ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build', 'connect:dummy', 'connect:spec', 'watch']);
+	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify' /*, 'uglify'*/ ]);
+	grunt.registerTask('test', ['connect', 'jasmine']);
+	grunt.registerTask('spec-server', ['jasmine::build', 'connect::keepalive']);
+	grunt.registerTask('spec-server-watch', ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build', 'connect', 'watch']);
 
 	grunt.registerTask('default', ['build', 'test']);
 
@@ -22,27 +22,33 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		connect: {
-			spec: {
-				options: {
-					port: 8181
-				}
-			},
-			dummy: {
+			default: {
 				options: {
 					port: 8182,
-					middleware: [
-						function modelMiddleware(req, res, next) {
-							if (req.url.startsWith('/model-cache-test')) {
+					base: '.',
+					middleware: function(connect, options, middlewares) {
+						middlewares.unshift(function(req, res, next) {
+							if (req.url === '/dummy/') {
+								res.setHeader('Content-Type', 'text/plain');
+								res.setHeader('Access-Control-Allow-Origin', '*');
+								res.end("Dummy-Server is running!");
+							} else {
+								return next();
+							}
+						});
+						middlewares.unshift(function(req, res, next) {
+							if (req.url.startsWith('/dummy/model-cache-test')) {
 								res.setHeader('Content-Type', 'application/json');
 								res.setHeader('Access-Control-Allow-Origin', '*');
 								res.end(JSON.stringify({
 									"foo": "bar"
 								}));
+							} else {
+								return next();
 							}
-							return next();
-						},
-						function collectionMiddleware(req, res, next) {
-							if (req.url.startsWith('/collection-cache-test')) {
+						});
+						middlewares.unshift(function(req, res, next) {
+							if (req.url.startsWith('/dummy/collection-cache-test')) {
 								res.setHeader('Content-Type', 'application/json');
 								res.setHeader('Access-Control-Allow-Origin', '*');
 								res.end(JSON.stringify([{
@@ -50,25 +56,26 @@ module.exports = function(grunt) {
 								}, {
 									"numbers": "123"
 								}]));
+							} else {
+								return next();
 							}
-							return next();
-						}
-					]
+						});
+						return middlewares;
+					}
 				}
-			},
+			}
 		},
 
 		jasmine: {
 			src: ['<%= pkg.main %>'],
 			options: {
+				host: 'http://127.0.0.1:8182/',
+				outfile: 'index.html',
 				specs: 'test/**/*.spec.js',
 				vendor: [
 					'node_modules/jquery/dist/jquery.js',
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
-				],
-				helpers: [
-
 				],
 				timeout: 5000,
 				phantomjs: {

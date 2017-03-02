@@ -1,11 +1,9 @@
-describe('Backbone.fetchCache', function() {
+describe('Backbone.Model', function() {
 	var console = window.console;
 
 	var testSettings = {
 		name: "testStore"
 	};
-
-	var port = 8182;
 
 	var modelResponse = {
 		"foo": "bar"
@@ -15,13 +13,22 @@ describe('Backbone.fetchCache', function() {
 	};
 
 	var model = new Backbone.Model();
-	model.url = 'http://localhost:' + port + '/model-cache-test';
+	model.url = '/dummy/model-cache-test';
 
 	function genUrl(model, options) {
 		return _.result(model, "url") + (options.data ? '?' + $.param(options.data) : '');
 	}
 
-	describe('Backbone.Model.fetch', function() {
+	describe('TestServer', function() {
+		it('servers dummy model', function(done) {
+			$.getJSON(model.url, function(data) {
+				expect(data).toEqual(modelResponse);
+				done();
+			});
+		});
+	});
+
+	describe('.fetch', function() {
 
 		beforeEach(function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {

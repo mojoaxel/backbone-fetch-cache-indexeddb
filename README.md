@@ -1,7 +1,8 @@
 # backbone-fetch-cache-indexeddb
 
 **WARNING!!**<br>
-**This project is in a very early stage and is in activ developed. Consider this BETA**
+**This project is still in an early stage and currently under activ developed.<br>
+Consider this BETA!**
 
 This is a plugin for [Backbone.js](http://backbonejs.org/). <br>
 It also works with Backbone-based frameworks like [Marionette](http://marionettejs.com/).
@@ -27,21 +28,26 @@ First the IndexedDb needs to be initialized. This is only neccessare once e.g. a
 
 ```js
 Backbone.fetchcache.init({
-	name: "MyApplicationCache", /// REQUIRED!
+	name: "MyApplicationCache",
 	enabled: false,
 	maxAge: Infinity
 })
 ```
 
 ### name
-REQUIRED!<br>
+_**REQUIRED**_
+
 The Name of your IndexedDB Store. This should be unique to your application.
 
 ### enabled
+_OPTIONAL_
+
 Enable the cache by default for all requests. This can be overwritten by setting `cache:false` or `cache:true` on the inidividual `fetch` call. <br>
 [Default: `false`]
 
 ### maxAge
+_OPTIONAL_
+
 Default max age in seconds. This can be overwritten by setting `maxAge` on the inidividual `fetch` call. <br>
 [Default: `Infinity`]
 

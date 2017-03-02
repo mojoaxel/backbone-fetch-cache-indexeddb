@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb/issues"
   },
-  "homepage": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb#readme",
+  "homepage": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb#backbone-fetch-cache-indexeddb",
   "devDependencies": {
     "backbone": "^1.3.3",
     "grunt": "^0.4.5",
