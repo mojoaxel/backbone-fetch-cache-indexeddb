@@ -6,23 +6,9 @@ describe('Backbone.fetchCache', function() {
 	var modelResponse = {
 		"foo": "bar"
 	};
-	var newModelResponse = {
-		"hip": "hop"
-	};
 
 	var model = new Backbone.Model();
 	model.url = '/dummy/model-cache-test';
-
-	/*
-	describe('TestServer', function() {
-		it('is running', function(done) {
-			$.get('/dummy/', function(data) {
-				expect(data.toLowerCase().indexOf('running') >= 0).toBe(true);
-				done();
-			});
-		});
-	});
-	*/
 
 	describe('IDBStore', function() {
 		it('exposes IDBStore', function() {
@@ -31,7 +17,7 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('exposes all IDBStore functions', function(done) {
-			var cache = new Backbone.fetchCache.init(testSettings, function(cache) {
+			new Backbone.fetchCache.init(testSettings, function(cache) {
 				var store = cache.store.idb;
 				expect(typeof(store.batch)).toBe("function");
 				expect(typeof(store.clear)).toBe("function");
@@ -74,7 +60,7 @@ describe('Backbone.fetchCache', function() {
 				name: undefined
 			};
 			expect(function() {
-				var cache = new Backbone.fetchCache.init(settings, function() {});
+				new Backbone.fetchCache.init(settings, function() {});
 			}).toThrow(new Error('Setting missing. The FetchCache needs a setting: "name"'));
 		});
 
@@ -120,7 +106,7 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('fetchcache.clear sets isInit to false', function(done) {
-			var cache = new Backbone.fetchCache.init(testSettings, function() {
+			new Backbone.fetchCache.init(testSettings, function() {
 				Backbone.fetchCache.clear(function() {
 					expect(Backbone.fetchCache.isInit).toBe(false);
 					done();

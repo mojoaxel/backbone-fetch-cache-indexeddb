@@ -1,0 +1,7 @@
+{
+	"extends": "eslint:recommended",
+	"rules": {
+		"no-undef": 0,
+		"no-unused-vars": ["warn", { "vars": "all", "args": "none"}]
+	}
+}

@@ -48,7 +48,7 @@ Backbone.fetchCache.init = function(settings, callback) {
 
 	checkSettings(cache.settings, 'name');
 
-	Backbone.fetchCache.store = new SimpleStore(cache.settings, function(store) {
+	Backbone.fetchCache.store = new SimpleStore(cache.settings, function() {
 		cache.isInit = true;
 		if (callback) {
 			callback(cache);
@@ -81,6 +81,7 @@ Backbone.fetchCache.clear = function(onSuccess) {
 	cache.store.purge(function() {
 		cache.isInit = false;
 		delete cache.store;
+		log("CLEAR successfull");
 		if (onSuccess) {
 			onSuccess.call(cache);
 		}

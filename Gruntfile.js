@@ -1,21 +1,19 @@
-/*global module:false*/
-var path = require('path');
 module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-jasmine');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks("grunt-jsbeautifier");
 	grunt.loadNpmTasks('grunt-browserify');
+	grunt.loadNpmTasks('grunt-eslint');
 
-	grunt.registerTask('build', ['jshint', 'jsbeautifier', 'browserify', 'uglify']);
+	grunt.registerTask('build', ['eslint', 'jsbeautifier', 'browserify']);
 	grunt.registerTask('test', ['connect', 'jasmine']);
 	grunt.registerTask('spec-server', ['jasmine::build', 'connect::keepalive']);
-	grunt.registerTask('spec-server-watch', ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build', 'connect', 'watch']);
+	grunt.registerTask('spec-server-watch', ['build', 'jasmine::build', 'connect', 'watch']);
 
-	grunt.registerTask('default', ['build', 'test']);
+	grunt.registerTask('default', ['build', 'uglify', 'test']);
 
 	// Project configuration.
 	grunt.initConfig({
@@ -27,15 +25,6 @@ module.exports = function(grunt) {
 					port: 8182,
 					base: '.',
 					middleware: function(connect, options, middlewares) {
-						middlewares.unshift(function(req, res, next) {
-							if (req.url === '/dummy/') {
-								res.setHeader('Content-Type', 'text/plain');
-								res.setHeader('Access-Control-Allow-Origin', '*');
-								res.end("Dummy-Server is running!");
-							} else {
-								return next();
-							}
-						});
 						middlewares.unshift(function(req, res, next) {
 							if (req.url.startsWith('/dummy/model-cache-test')) {
 								res.setHeader('Content-Type', 'application/json');
@@ -84,11 +73,9 @@ module.exports = function(grunt) {
 			}
 		},
 
-		jshint: {
-			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.spec.js'],
-			options: {
-				jshintrc: '.jshintrc'
-			}
+		eslint: {
+			target: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.spec.js'],
+			options: {},
 		},
 
 		jsbeautifier: {

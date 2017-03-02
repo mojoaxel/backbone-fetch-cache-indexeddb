@@ -1,5 +1,4 @@
 describe('Backbone.Model', function() {
-	var console = window.console;
 
 	var testSettings = {
 		name: "testStore"
@@ -31,7 +30,7 @@ describe('Backbone.Model', function() {
 	describe('.fetch', function() {
 
 		beforeEach(function(done) {
-			var cache = new Backbone.fetchCache.init(testSettings, function() {
+			new Backbone.fetchCache.init(testSettings, function() {
 				expect(Backbone.fetchCache.isInit).toBe(true);
 				done();
 			});

@@ -4,7 +4,7 @@
   "description": "Agressive caching for Backbone's fetch method",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
-    "build": "grunt build",
+    "build": "grunt build uglify",
     "watch": "grunt spec-server-watch",
     "test": "grunt",
     "test-server": "grunt spec-server"
@@ -30,9 +30,9 @@
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-jasmine": "^1.1.0",
-    "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-uglify": "^2.1.0",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
     "grunt-jsbeautifier": "^0.2.13",
     "jquery": "^3.1.1",
     "uglify-js": "^2.7.5",
