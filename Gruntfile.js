@@ -6,6 +6,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks("grunt-jsbeautifier");
 	grunt.loadNpmTasks('grunt-browserify');
+	grunt.loadNpmTasks('grunt-jsinspect');
 	grunt.loadNpmTasks('grunt-eslint');
 
 	grunt.registerTask('build', ['eslint', 'jsbeautifier', 'browserify']);
@@ -84,6 +85,19 @@ module.exports = function(grunt) {
 				js: {
 					indentWithTabs: true
 				}
+			}
+		},
+
+		jsinspect: {
+			examples: {
+				options: {
+					threshold: 20,
+					diff: true,
+					failOnMatch: false,
+					suppress: 300,
+					reporter: 'default',
+				},
+				src: ['src/**/*.js']
 			}
 		},
 
