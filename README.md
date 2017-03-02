@@ -7,6 +7,18 @@ It overwrites the *fetch* Method of Backbone.Model and Backbone.Collection and c
 
 This can reduces unesseccary API calls significantly!
 
+## Badges
+
+[![NPM](https://nodei.co/npm/backbone-fetch-cache-indexeddb.png?downloads=true&downloadRank=true)](https://nodei.co/npm/backbone-fetch-cache-indexeddb/)
+
+[![Build Status](https://travis-ci.org/mojoaxel/backbone-fetch-cache-indexeddb.svg?branch=master)](https://travis-ci.org/mojoaxel/backbone-fetch-cache-indexeddb)
+[![Dependency Status](https://david-dm.org/mojoaxel/backbone-fetch-cache-indexeddb/status.svg)](https://david-dm.org/mojoaxel/backbone-fetch-cache-indexeddb)
+[![devDependency Status](https://david-dm.org/mojoaxel/backbone-fetch-cache-indexeddb/dev-status.svg)](https://david-dm.org/mojoaxel/backbone-fetch-cache-indexeddb?type=dev)
+
+[![GitHub issues](https://img.shields.io/github/issues/mojoaxel/backbone-fetch-cache-indexeddb.svg)](https://github.com/mojoaxel/backbone-fetch-cache-indexeddb/issues)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/mojoaxel/backbone-fetch-cache-indexeddb.svg)](http://isitmaintained.com/project/mojoaxel/backbone-fetch-cache-indexeddb "Percentage of issues still open")
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/mojoaxel/backbone-fetch-cache-indexeddb.svg)](http://isitmaintained.com/project/mojoaxel/backbone-fetch-cache-indexeddb "Average time to resolve an issue")
+
 ## Installation
 
 `npm install --save backbone-fetch-cache-indexeddb`
