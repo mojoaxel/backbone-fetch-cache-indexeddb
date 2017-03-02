@@ -61,7 +61,7 @@ describe('Backbone.fetchCache', function() {
 			};
 			expect(function() {
 				new Backbone.fetchCache.init(settings, function() {});
-			}).toThrow(new Error('Setting missing. The FetchCache needs a setting: "name"'));
+			}).toThrow(new Error('Setting missing. The FetchCache needs a \"name\"'));
 		});
 
 		it('fetchcache.init must be called before fetch with cache works', function(done) {
@@ -73,6 +73,62 @@ describe('Backbone.fetchCache', function() {
 					expect(window.console.warn).toHaveBeenCalled();
 					done();
 				}
+			});
+		});
+	});
+
+	describe('fetchcache.init settings', function() {
+		it('error if setting "name" is missing', function() {
+			var unvalidNames = [undefined, null];
+			unvalidNames.forEach(function(name) {
+				expect(function() {
+					new Backbone.fetchCache.init({
+						name: name
+					}, function() {});
+				}).toThrow(new Error('Setting missing. The FetchCache needs a "name"'));
+			});
+		});
+
+		it('error if setting "name" is invalid', function() {
+			var invalid = [4711, {}, function() {}, '', " ", "\n", "\t"];
+			invalid.forEach(function(invalid) {
+				expect(function() {
+					new Backbone.fetchCache.init({
+						name: invalid
+					}, function() {});
+				}).toThrow(new Error('The "name" parameter must be a valid String'));
+			});
+		});
+
+		it('error if setting "enabled" is invalid it is ignord', function(done) {
+			var invalid = [4711, {}, function() {}, ''];
+			var maxCount = invalid.length - 1;
+			invalid.forEach(function(invalid, index) {
+				new Backbone.fetchCache.init({
+					name: "test",
+					enabled: invalid
+				}, function() {
+					expect(Backbone.fetchCache.enabled).not.toBe(invalid);
+					if (index >= maxCount) {
+						Backbone.fetchCache.clear(done);
+					}
+				});
+			});
+		});
+
+		it('error if setting "maxAge" is invalid it is ignord', function(done) {
+			var invalid = [true, false, "fnord", NaN, {}, function() {}, ''];
+			var maxCount = invalid.length - 1;
+			invalid.forEach(function(invalid, index) {
+				new Backbone.fetchCache.init({
+					name: "test",
+					maxAge: invalid
+				}, function() {
+					expect(Backbone.fetchCache.maxAge).not.toBe(invalid);
+					if (index >= maxCount) {
+						Backbone.fetchCache.clear(done);
+					}
+				});
 			});
 		});
 	});

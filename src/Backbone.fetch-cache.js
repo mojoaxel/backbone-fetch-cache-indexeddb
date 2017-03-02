@@ -33,10 +33,26 @@ Backbone.fetchCache = {
 	maxAge: Infinity
 };
 
-function checkSettings(settings, key) {
-	if (!settings || !settings[key]) {
-		throw new Error("Setting missing. The FetchCache needs a setting: \"" + key + "\"");
+function handleSettings(cache, settings) {
+	settings = settings || {};
+
+	if (_.isUndefined(settings.name) || _.isNull(settings.name)) {
+		throw new Error('Setting missing. The FetchCache needs a "name"');
+	} else if (!_.isString(settings.name) || settings.name.trim().length <= 0) {
+		throw new Error('The "name" parameter must be a valid String');
+	} else {
+		cache.name = settings.name;
 	}
+
+	if (_.isBoolean(settings.enabled)) {
+		cache.enabled = settings.enabled;
+	}
+
+	if (_.isFinite(settings.maxAge)) {
+		cache.maxAge = settings.maxAge;
+	}
+
+	return cache;
 }
 
 /**
@@ -44,11 +60,11 @@ function checkSettings(settings, key) {
  */
 Backbone.fetchCache.init = function(settings, callback) {
 	var cache = Backbone.fetchCache;
-	cache.settings = settings || {};
+	cache = handleSettings(cache, settings);
 
-	checkSettings(cache.settings, 'name');
-
-	Backbone.fetchCache.store = new SimpleStore(cache.settings, function() {
+	Backbone.fetchCache.store = new SimpleStore({
+		name: cache.name
+	}, function() {
 		cache.isInit = true;
 		if (callback) {
 			callback(cache);

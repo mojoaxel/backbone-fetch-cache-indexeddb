@@ -19,10 +19,10 @@ function errorHandler(err) {
 var Store = function(settings, onStoreReady) {
 	var store = this;
 
-	this.settings = settings || {};
-	this.settings.name = settings.name || 'store';
+	store.settings = settings || {};
+	store.settings.name = settings.name || 'store';
 
-	this.idb = new IDBStore({
+	store.idb = new IDBStore({
 		storeName: store.settings.name,
 		keyPath: null, //important for out-of-line keys!
 		autoIncrement: false,
@@ -39,7 +39,7 @@ var Store = function(settings, onStoreReady) {
  * TODO
  */
 Store.prototype._formatKey = function(key) {
-	// no formating jet
+	// no key formating by default
 	return key;
 };
 
