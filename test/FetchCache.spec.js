@@ -1,22 +1,19 @@
 describe('Backbone.fetchCache', function() {
-	var testSettings, model, errorModel, collection, errorCollection, modelResponse, errorModelResponse, collectionResponse;
-
-	var console = window.console;
-
-	testSettings = {
+	var testSettings = {
 		name: "testStore"
 	};
 
 	var port = 8182;
 
-	modelResponse = {
+	var modelResponse = {
 		"foo": "bar"
 	};
+	var newModelResponse = {
+		"hip": "hop"
+	};
 
-	model = new Backbone.Model();
+	var model = new Backbone.Model();
 	model.url = 'http://localhost:' + port + '/model-cache-test';
-	collection = new Backbone.Collection();
-	collection.url = 'http://localhost:' + port + '/collection-cache-test';
 
 
 	describe('IDBStore', function() {
@@ -48,7 +45,7 @@ describe('Backbone.fetchCache', function() {
 				expect(typeof(store.remove)).toBe("function");
 				expect(typeof(store.removeBatch)).toBe("function");
 				expect(typeof(store.upsertBatch)).toBe("function");
-				done();
+				Backbone.fetchCache.clear(done);
 			});
 		});
 	});
@@ -56,6 +53,18 @@ describe('Backbone.fetchCache', function() {
 	describe('fetchcache.init', function() {
 		it('fetchCache object exists', function() {
 			expect(typeof(Backbone.fetchCache)).toBe("object");
+		});
+
+		it('model.fetch without calling fetchcache.init() first', function(done) {
+			spyOn(window.console, 'warn');
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(window.console.warn).toHaveBeenCalled();
+					done();
+				}
+			});
 		});
 
 		it('error if setting "name" is missing', function() {
@@ -78,6 +87,19 @@ describe('Backbone.fetchCache', function() {
 			expect(typeof(Backbone.fetchCache.clear)).toBe("function");
 		});
 
+		it('call fetchcache.clear without init results in no callback', function(done) {
+			spyOn(window.console, 'warn');
+			var wasCalled = false;
+			Backbone.fetchCache.clear(function() {
+				wasCalled = true;
+			});
+			setTimeout(function() {
+				expect(wasCalled).toBe(false);
+				expect(window.console.warn).toHaveBeenCalled();
+				done();
+			}, 200);
+		});
+
 		it('fetchcache.clear returns callback', function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {
 				expect(typeof(cache)).toBe("object");
@@ -94,35 +116,6 @@ describe('Backbone.fetchCache', function() {
 					expect(Backbone.fetchCache.isInit).toBe(false);
 					done();
 				});
-			});
-		});
-
-		it('call fetchcache.clear without init results in no callback', function(done) {
-			spyOn(console, 'warn');
-			var wasCalled = false;
-			Backbone.fetchCache.clear(function() {
-				wasCalled = true;
-			});
-			setTimeout(function() {
-				expect(wasCalled).toBe(false);
-				expect(console.warn).toHaveBeenCalled();
-				done();
-			}, 100);
-		});
-
-		it('model.fetch without calling fetchcache.init() first', function(done) {
-			spyOn(console, 'warn');
-			model.fetch({
-				cache: true,
-				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(model.attributes).toEqual(modelResponse);
-					Backbone.fetchCache.store.getItem(model.url, function(value) {
-						expect(value).toBe(null);
-						expect(console.warn).toHaveBeenCalled();
-						done();
-					});
-				}
 			});
 		});
 	});

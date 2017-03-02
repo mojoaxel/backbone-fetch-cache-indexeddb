@@ -1,23 +1,25 @@
 describe('Backbone.fetchCache', function() {
-	var testSettings, model, errorModel, modelResponse, newModelResponse;
-
 	var console = window.console;
 
-	testSettings = {
+	var testSettings = {
 		name: "testStore"
 	};
 
 	var port = 8182;
 
-	modelResponse = {
+	var modelResponse = {
 		"foo": "bar"
 	};
-	newModelResponse = {
+	var newModelResponse = {
 		"hip": "hop"
 	};
 
-	model = new Backbone.Model();
+	var model = new Backbone.Model();
 	model.url = 'http://localhost:' + port + '/model-cache-test';
+
+	function genUrl(model, options) {
+		return _.result(model, "url") + (options.data ? '?' + $.param(options.data) : '');
+	}
 
 	describe('Backbone.Model.fetch', function() {
 
@@ -53,7 +55,7 @@ describe('Backbone.fetchCache', function() {
 				success: function(model, resp, options) {
 					expect(resp).toEqual(modelResponse);
 					expect(model.attributes).toEqual(modelResponse);
-					Backbone.fetchCache.store.getItem(model.url, function(value) {
+					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
 						expect(value).toBe(null);
 						Backbone.fetchCache.store.idb.count(function(count) {
 							expect(count).toEqual(0);
@@ -70,7 +72,27 @@ describe('Backbone.fetchCache', function() {
 				success: function(model, resp, options) {
 					expect(resp).toEqual(modelResponse);
 					expect(model.attributes).toEqual(modelResponse);
-					Backbone.fetchCache.store.getItem(model.url, function(value) {
+					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
+						expect(typeof(value)).toBe("object");
+						expect(value.data).toEqual(modelResponse);
+						done();
+					});
+				}
+			});
+		});
+
+		it('model.fetch with data', function(done) {
+			model.fetch({
+				cache: true,
+				data: {
+					first: "123",
+					second: "456"
+				},
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(model.attributes).toEqual(modelResponse);
+					Backbone.fetchCache.store.getItem(genUrl(model, options), function(value) {
+						expect(typeof(value)).toBe("object");
 						expect(value.data).toEqual(modelResponse);
 						done();
 					});
@@ -87,7 +109,8 @@ describe('Backbone.fetchCache', function() {
 						timestamp: new Date().getTime(),
 						data: newModelResponse
 					};
-					Backbone.fetchCache.store.setItem(model.url, data, function() {
+					// overwrite cache with new data
+					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
 							model.fetch({
@@ -114,7 +137,7 @@ describe('Backbone.fetchCache', function() {
 						timestamp: new Date().getTime(),
 						data: newModelResponse
 					};
-					Backbone.fetchCache.store.setItem(model.url, data, function() {
+					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
 							model.fetch({

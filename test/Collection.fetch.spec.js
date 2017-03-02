@@ -1,29 +1,30 @@
-describe('Backbone.fetchCache', function() {
-	var testSettings, collection, collectionResponse, newCollectionResponse;
-
-	var console = window.console;
-
-	testSettings = {
-		name: "testStore"
-	};
-
-	var port = 8182;
-
-	collectionResponse = [{
-		"foo": "bar"
-	}, {
-		"numbers": "123"
-	}];
-	newCollectionResponse = [{
-		"numbers": "345"
-	}, {
-		"fnord": "zero"
-	}];
-
-	collection = new Backbone.Collection();
-	collection.url = 'http://localhost:' + port + '/collection-cache-test';
-
 	describe('Backbone.Collection.fetch', function() {
+		var console = window.console;
+
+		var testSettings = {
+			name: "testStore"
+		};
+
+		var port = 8182;
+
+		var collection = new Backbone.Collection();
+		collection.url = 'http://localhost:' + port + '/collection-cache-test';
+
+		function genUrl(modCol, options) {
+			return _.result(modCol, "url") + (options.data ? '?' + $.param(options.data) : '');
+		}
+
+		var collectionResponse = [{
+			"foo": "bar"
+		}, {
+			"numbers": "123"
+		}];
+
+		var newCollectionResponse = [{
+			"numbers": "345"
+		}, {
+			"fnord": "zero"
+		}];
 
 		beforeEach(function(done) {
 			var cache = new Backbone.fetchCache.init(testSettings, function() {
@@ -55,7 +56,7 @@ describe('Backbone.fetchCache', function() {
 			collection.fetch({
 				success: function(collection, resp, options) {
 					expect(resp).toEqual(collectionResponse);
-					Backbone.fetchCache.store.getItem(collection.url, function(value) {
+					Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
 						expect(value).toBe(null);
 						Backbone.fetchCache.store.idb.count(function(count) {
 							expect(count).toEqual(0);
@@ -71,7 +72,26 @@ describe('Backbone.fetchCache', function() {
 				cache: true,
 				success: function(collection, resp, options) {
 					expect(resp).toEqual(collectionResponse);
-					Backbone.fetchCache.store.getItem(collection.url, function(value) {
+					Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
+						expect(typeof(value)).toBe("object");
+						expect(value.data).toEqual(collectionResponse);
+						done();
+					});
+				}
+			});
+		});
+
+		it('collection.fetch with data', function(done) {
+			collection.fetch({
+				cache: true,
+				data: {
+					first: "123",
+					second: "456"
+				},
+				success: function(collection, resp, options) {
+					expect(resp).toEqual(collectionResponse);
+					Backbone.fetchCache.store.getItem(genUrl(collection, options), function(value) {
+						expect(typeof(value)).toBe("object");
 						expect(value.data).toEqual(collectionResponse);
 						done();
 					});
@@ -88,7 +108,7 @@ describe('Backbone.fetchCache', function() {
 						timestamp: new Date().getTime(),
 						data: newCollectionResponse
 					};
-					Backbone.fetchCache.store.setItem(collection.url, data, function() {
+					Backbone.fetchCache.store.setItem(genUrl(collection, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
 							collection.fetch({
@@ -114,7 +134,7 @@ describe('Backbone.fetchCache', function() {
 						timestamp: new Date().getTime(),
 						data: newCollectionResponse
 					};
-					Backbone.fetchCache.store.setItem(collection.url, data, function() {
+					Backbone.fetchCache.store.setItem(genUrl(collection, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
 							collection.fetch({
@@ -132,4 +152,3 @@ describe('Backbone.fetchCache', function() {
 		});
 
 	});
-});

@@ -23,6 +23,10 @@ var wrapError = function(model, options) {
 	};
 };
 
+function genUrl(modCol, options) {
+	return _.result(modCol, "url") + (options.data ? '?' + $.param(options.data) : '');
+}
+
 Backbone.fetchCache = {
 	isInit: false,
 	enabled: false,
@@ -70,12 +74,13 @@ Backbone.fetchCache.chechIfInit = function() {
  */
 Backbone.fetchCache.clear = function(onSuccess) {
 	var cache = Backbone.fetchCache;
-	if (!cache.store || !cache.chechIfInit()) {
+	if (!cache.chechIfInit()) {
 		return cache;
 	}
 
 	cache.store.purge(function() {
 		cache.isInit = false;
+		delete cache.store;
 		if (onSuccess) {
 			onSuccess.call(cache);
 		}
@@ -101,8 +106,6 @@ Backbone.Model.prototype.fetch = function(options) {
 		parse: true,
 		context: options.context || model
 	}, options);
-
-	window.console.log("Options: ", JSON.stringify(options));
 
 	//Bypass caching if it's not enabled
 	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
@@ -139,7 +142,7 @@ Backbone.Model.prototype.fetch = function(options) {
 		}
 
 		if (!dataFromCache) {
-			var key = _.result(model, "url") + JSON.stringify(options.data || {});
+			var key = genUrl(model, options);
 			var data = {
 				timestamp: new Date().getTime(),
 				data: resp
@@ -155,7 +158,7 @@ Backbone.Model.prototype.fetch = function(options) {
 
 	wrapError(this, options); // from original source
 
-	var key = _.result(model, "url") + JSON.stringify(options.data || {});
+	var key = genUrl(model, options);
 	Backbone.fetchCache.store.getItem(key, function(resp) {
 
 		if (resp) {
@@ -239,11 +242,12 @@ Backbone.Collection.prototype.fetch = function(options) {
 		}
 
 		if (!dataFromCache) {
+			var key = genUrl(collection, options);
 			var data = {
 				timestamp: new Date().getTime(),
 				data: resp
 			};
-			Backbone.fetchCache.store.setItem(_.result(collection, "url"), data, function() {
+			Backbone.fetchCache.store.setItem(key, data, function() {
 				//collection.trigger('cachesync', collection, resp, options);
 				ready();
 			});
@@ -254,7 +258,8 @@ Backbone.Collection.prototype.fetch = function(options) {
 
 	wrapError(this, options); // from original source
 
-	Backbone.fetchCache.store.getItem(_.result(collection, "url"), function(resp) {
+	var key = genUrl(collection, options);
+	Backbone.fetchCache.store.getItem(key, function(resp) {
 
 		if (resp) {
 			if (!resp.timestamp) {

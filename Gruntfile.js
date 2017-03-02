@@ -32,7 +32,7 @@ module.exports = function(grunt) {
 					port: 8182,
 					middleware: [
 						function modelMiddleware(req, res, next) {
-							if (req.url === '/model-cache-test') {
+							if (req.url.startsWith('/model-cache-test')) {
 								res.setHeader('Content-Type', 'application/json');
 								res.setHeader('Access-Control-Allow-Origin', '*');
 								res.end(JSON.stringify({
@@ -42,7 +42,7 @@ module.exports = function(grunt) {
 							return next();
 						},
 						function collectionMiddleware(req, res, next) {
-							if (req.url === '/collection-cache-test') {
+							if (req.url.startsWith('/collection-cache-test')) {
 								res.setHeader('Content-Type', 'application/json');
 								res.setHeader('Access-Control-Allow-Origin', '*');
 								res.end(JSON.stringify([{
@@ -66,6 +66,9 @@ module.exports = function(grunt) {
 					'node_modules/jquery/dist/jquery.js',
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
+				],
+				helpers: [
+
 				],
 				timeout: 5000,
 				phantomjs: {
@@ -130,7 +133,7 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			files: ['test/**/*', 'src/**/*', 'Gruntfile.js'],
+			files: ['test/**/*', 'src/**/*'],
 			tasks: ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build']
 		}
 	});

@@ -39,7 +39,8 @@ var Store = function(settings, onStoreReady) {
  * TODO
  */
 Store.prototype._formatKey = function(key) {
-	return encodeURIComponent(key).replace(/%2F/g, "_");;
+	// no formating jet
+	return key;
 };
 
 /**
@@ -89,6 +90,7 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
 	store.idb.clear(onSuccess, onError || errorHandler);
+	delete store.idb;
 	return store;
 };
 
