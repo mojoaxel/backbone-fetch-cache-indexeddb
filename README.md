@@ -7,7 +7,7 @@ It overwrites the *fetch* Method of Backbone.Model and Backbone.Collection and c
 
 This can reduces unesseccary API calls significantly!
 
-## Badges
+## Status
 
 [![NPM](https://nodei.co/npm/backbone-fetch-cache-indexeddb.png?downloads=true&downloadRank=true)](https://nodei.co/npm/backbone-fetch-cache-indexeddb/)
 
