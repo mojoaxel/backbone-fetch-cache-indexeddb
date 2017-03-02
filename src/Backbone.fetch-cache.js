@@ -238,9 +238,6 @@ Backbone.Collection.prototype.fetch = function(options) {
 	var orgSuccess = options.success; // from original source
 	options.success = function(resp) { // from original source
 		function ready() {
-			// parse the response
-			resp = options.parse ? collection.parse(resp, options) : resp;
-
 			// from original source
 			var method = options.reset ? 'reset' : 'set';
 			collection[method](resp, options);
