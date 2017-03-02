@@ -77,6 +77,18 @@ describe('Backbone.fetchCache', function() {
 				var cache = new Backbone.fetchCache.init(settings, function() {});
 			}).toThrow(new Error('Setting missing. The FetchCache needs a setting: "name"'));
 		});
+
+		it('fetchcache.init must be called before fetch with cache works', function(done) {
+			spyOn(window.console, 'warn');
+			model.fetch({
+				cache: true,
+				success: function(model, resp, options) {
+					expect(resp).toEqual(modelResponse);
+					expect(window.console.warn).toHaveBeenCalled();
+					done();
+				}
+			});
+		});
 	});
 
 	describe('fetchcache.clear', function() {
@@ -84,7 +96,7 @@ describe('Backbone.fetchCache', function() {
 			expect(typeof(Backbone.fetchCache.clear)).toBe("function");
 		});
 
-		it('call fetchcache.clear without init results in no callback', function(done) {
+		it('fetchcache.clear call without init results in no callback', function(done) {
 			spyOn(window.console, 'warn');
 			var wasCalled = false;
 			Backbone.fetchCache.clear(function() {
@@ -113,18 +125,6 @@ describe('Backbone.fetchCache', function() {
 					expect(Backbone.fetchCache.isInit).toBe(false);
 					done();
 				});
-			});
-		});
-
-		it('model.fetch without calling fetchcache.init() first', function(done) {
-			spyOn(window.console, 'warn');
-			model.fetch({
-				cache: true,
-				success: function(model, resp, options) {
-					expect(resp).toEqual(modelResponse);
-					expect(window.console.warn).toHaveBeenCalled();
-					done();
-				}
 			});
 		});
 	});

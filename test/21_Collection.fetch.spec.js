@@ -33,7 +33,7 @@
 			});
 		});
 
-		describe('fetch', function() {
+		describe('.fetch', function() {
 			beforeEach(function(done) {
 				var cache = new Backbone.fetchCache.init(testSettings, function() {
 					expect(Backbone.fetchCache.isInit).toBe(true);

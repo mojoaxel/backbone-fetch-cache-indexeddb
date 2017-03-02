@@ -20,7 +20,7 @@ describe('Backbone.Model', function() {
 	}
 
 	describe('TestServer', function() {
-		it('servers dummy model', function(done) {
+		it('serves dummy model', function(done) {
 			$.getJSON(model.url, function(data) {
 				expect(data).toEqual(truth);
 				done();
