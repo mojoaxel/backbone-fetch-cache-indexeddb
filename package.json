@@ -1,6 +1,6 @@
 {
   "name": "backbone-fetch-cache-indexeddb",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Agressive caching for Backbone's fetch method",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
@@ -28,6 +28,7 @@
     "backbone": "^1.3.3",
     "grunt": "^0.4.5",
     "grunt-browserify": "^5.0.0",
+    "grunt-bump": "^0.8.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-jasmine": "^1.1.0",
     "grunt-contrib-jshint": "^1.1.0",
