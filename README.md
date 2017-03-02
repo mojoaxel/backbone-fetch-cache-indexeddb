@@ -1,9 +1,5 @@
 # backbone-fetch-cache-indexeddb
 
-**WARNING!!**<br>
-**This project is still in an early stage and currently under activ developed.<br>
-Consider this BETA!**
-
 This is a plugin for [Backbone.js](http://backbonejs.org/). <br>
 It also works with Backbone-based frameworks like [Marionette](http://marionettejs.com/).
 
