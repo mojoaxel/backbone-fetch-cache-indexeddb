@@ -78,8 +78,7 @@ model.fetch({
 ## References
 
 * This software is heavily inspired by [backbone-fetch-cache](https://github.com/madglory/backbone-fetch-cache).
-* The AMD wrapper is based on [amdWebGlobal.js](https://github.com/umdjs/umd/blob/master/templates/amdWebGlobal.js).
-* This Software was developed for [Siemens Healthcare](https://www.healthcare.siemens.de/).
+* This software uses the [idb-wrapper](https://www.npmjs.com/package/idb-wrapper) to ensure cross-browser support.
 
 ## MIT License
 
