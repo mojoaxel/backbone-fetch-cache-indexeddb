@@ -17,7 +17,7 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('exposes all IDBStore functions', function(done) {
-			new Backbone.fetchCache.init(testSettings, function(cache) {
+			Backbone.fetchCache.init(testSettings, function(cache) {
 				var store = cache.store.idb;
 				expect(typeof(store.batch)).toBe("function");
 				expect(typeof(store.clear)).toBe("function");
@@ -60,7 +60,7 @@ describe('Backbone.fetchCache', function() {
 				name: undefined
 			};
 			expect(function() {
-				new Backbone.fetchCache.init(settings, function() {});
+				Backbone.fetchCache.init(settings, function() {});
 			}).toThrow(new Error('Setting missing. The FetchCache needs a \"name\"'));
 		});
 
@@ -75,6 +75,16 @@ describe('Backbone.fetchCache', function() {
 				}
 			});
 		});
+
+		it('fetchcache.init returns callback', function(done) {
+			var cache = Backbone.fetchCache.init(testSettings, function() {
+				expect(typeof(cache)).toBe("object");
+				expect(Backbone.fetchCache.isInit).toBe(true);
+				Backbone.fetchCache.clear(function() {
+					done();
+				});
+			});
+		});
 	});
 
 	describe('fetchcache.init settings', function() {
@@ -82,7 +92,7 @@ describe('Backbone.fetchCache', function() {
 			var unvalidNames = [undefined, null];
 			unvalidNames.forEach(function(name) {
 				expect(function() {
-					new Backbone.fetchCache.init({
+					Backbone.fetchCache.init({
 						name: name
 					}, function() {});
 				}).toThrow(new Error('Setting missing. The FetchCache needs a "name"'));
@@ -93,7 +103,7 @@ describe('Backbone.fetchCache', function() {
 			var invalid = [4711, {}, function() {}, '', " ", "\n", "\t"];
 			invalid.forEach(function(invalid) {
 				expect(function() {
-					new Backbone.fetchCache.init({
+					Backbone.fetchCache.init({
 						name: invalid
 					}, function() {});
 				}).toThrow(new Error('The "name" parameter must be a valid String'));
@@ -104,7 +114,7 @@ describe('Backbone.fetchCache', function() {
 			var invalid = [4711, {}, function() {}, ''];
 			var maxCount = invalid.length - 1;
 			invalid.forEach(function(invalid, index) {
-				new Backbone.fetchCache.init({
+				Backbone.fetchCache.init({
 					name: "test",
 					enabled: invalid
 				}, function() {
@@ -120,7 +130,7 @@ describe('Backbone.fetchCache', function() {
 			var invalid = [true, false, "fnord", NaN, {}, function() {}, ''];
 			var maxCount = invalid.length - 1;
 			invalid.forEach(function(invalid, index) {
-				new Backbone.fetchCache.init({
+				Backbone.fetchCache.init({
 					name: "test",
 					maxAge: invalid
 				}, function() {
@@ -152,17 +162,17 @@ describe('Backbone.fetchCache', function() {
 		});
 
 		it('fetchcache.clear returns callback', function(done) {
-			var cache = new Backbone.fetchCache.init(testSettings, function() {
-				expect(typeof(cache)).toBe("object");
-				expect(Backbone.fetchCache.isInit).toBe(true);
-				Backbone.fetchCache.clear(function() {
+			Backbone.fetchCache.init(testSettings, function() {
+				Backbone.fetchCache.clear(function(cache) {
+					expect(typeof(cache)).toBe("object");
+					expect(Backbone.fetchCache.isInit).toBe(false);
 					done();
 				});
 			});
 		});
 
 		it('fetchcache.clear sets isInit to false', function(done) {
-			new Backbone.fetchCache.init(testSettings, function() {
+			Backbone.fetchCache.init(testSettings, function() {
 				Backbone.fetchCache.clear(function() {
 					expect(Backbone.fetchCache.isInit).toBe(false);
 					done();
@@ -170,5 +180,9 @@ describe('Backbone.fetchCache', function() {
 			});
 		});
 	});
+
+	//TODO error handling
+	//TODO 1.create store, 2. manually clear indexdb in browser, 3. try to write something --> Exception
+
 
 });

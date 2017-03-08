@@ -75,9 +75,14 @@ Store.prototype.setItem = function(key, value, onSuccess, onError) {
  */
 Store.prototype.getItem = function(key, onSuccess, onError) {
 	var store = this;
-	store.idb.get(store._formatKey(key), function(data) {
-		onSuccess(store._deSerializeData(data));
-	}, onError || errorHandler);
+	try {
+		store.idb.get(store._formatKey(key), function(data) {
+			onSuccess(store._deSerializeData(data));
+		}, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
 	return store;
 };
 
