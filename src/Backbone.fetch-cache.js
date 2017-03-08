@@ -145,7 +145,8 @@ function fetch(options) {
 	if ((_.isBoolean(options.cache) && options.cache === false) ||
 		(Backbone.fetchCache.enabled === false && _.isUndefined(options.cache)) ||
 		(!Backbone.fetchCache.chechIfInit())) {
-		return superMethods[type].fetch.apply(this, arguments);
+		// Delegate to the actual fetch method to get the values from the server
+		return superMethods[type].fetch.call(modCol, options);
 	}
 
 	var dataFromCache = false;
@@ -233,12 +234,11 @@ function fetch(options) {
 		// get data from server
 		dataFromCache = false;
 
-		// Delegate to the actual sync method to get the values from the server
-		var jqXHR = superMethods[type].sync.call(options.context, 'read', options.context, options);
+		// Delegate to the actual fetch method to get the values from the server
+		var jqXHR =  superMethods[type].fetch.call(modCol, options);
 
 		// resolve the returned promise when the AJAX call completes
-		jqXHR.done(_.bind(deferred.resolve, options.context))
-			.fail(_.bind(deferred.reject, options.context));
+		jqXHR.done(_.bind(deferred.resolve, options.context)).fail(_.bind(deferred.reject, options.context));
 		deferred.abort = jqXHR.abort;
 	}, function(error) {
 		throw new Error("could not getItem. ", error);
