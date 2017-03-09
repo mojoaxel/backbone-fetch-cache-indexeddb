@@ -21,7 +21,7 @@ var wrapError = function(model, options) {
 	var error = options.error;
 	options.error = function(resp) {
 		if (error) {
-			error.call(options.context, model, resp, options);
+			error.call(context, model, resp, options);
 		}
 		model.trigger('error', model, resp, options);
 	};
@@ -139,7 +139,7 @@ function fetch(options) {
 		parse: true
 	}, options);
 
-	options.context = options.context || this;
+	var context = options.context || this;
 
 	//Bypass caching if it's not enabled
 	if ((_.isBoolean(options.cache) && options.cache === false) ||
@@ -152,42 +152,43 @@ function fetch(options) {
 	var dataFromCache = false;
 	var key = genUrl(modCol, options);
 	var orgSuccess = options.success; // from original source
-	options.success = function(resp) { // from original source
+	options.success = function(modCol, response, opts) { // from original source
 
 		// simulate a ajax success
-		deferred.resolveWith(options.context, [modCol]);
+		deferred.resolveWith(context, [modCol]);
 
-		function ready() {
+		function ready(data) {
 			if (type === MODEL) {
-				var serverAttrs = options.parse ? modCol.parse(resp, options) : resp;
+				var serverAttrs = options.parse ? modCol.parse(data, options) : data;
 
 				if (!modCol.set(serverAttrs, options)) {
 					return false;
 				}
 			} else {
 				var method = options.reset ? 'reset' : 'set';
-				modCol[method](resp, options);
+				modCol[method](data, options);
 			}
 
 			// from original source
 			if (orgSuccess) {
-				orgSuccess.call(options.context, modCol, resp, options);
+				orgSuccess.call(context, modCol, data, options);
 			}
-			// from original source
-			modCol.trigger('sync', modCol, resp, options);
 		}
 
 		if (!dataFromCache) {
 			var data = {
 				timestamp: new Date().getTime(),
-				data: resp
+				data: response
 			};
 			Backbone.fetchCache.store.setItem(key, data, function() {
 				Backbone.fetchCache.trigger('setitem', key, data);
-				ready();
+				ready(data.data);
 			});
 		} else {
-			ready();
+			ready(response);
+
+			// from original source
+			modCol.trigger('sync', modCol, response, options);
 		}
 	};
 
@@ -222,7 +223,7 @@ function fetch(options) {
 			if (age < maxAge) {
 				// return data from cache
 				dataFromCache = true;
-				options.success.call(modCol, resp.data);
+				options.success.call(modCol, modCol, resp.data);
 				return;
 			} else {
 				Backbone.fetchCache.trigger('aged', key, resp, maxAge);
@@ -235,10 +236,10 @@ function fetch(options) {
 		dataFromCache = false;
 
 		// Delegate to the actual fetch method to get the values from the server
-		var jqXHR =  superMethods[type].fetch.call(modCol, options);
+		var jqXHR = superMethods[type].fetch.call(modCol, options);
 
 		// resolve the returned promise when the AJAX call completes
-		jqXHR.done(_.bind(deferred.resolve, options.context)).fail(_.bind(deferred.reject, options.context));
+		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
 		deferred.abort = jqXHR.abort;
 	}, function(error) {
 		throw new Error("could not getItem. ", error);
