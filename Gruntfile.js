@@ -67,7 +67,6 @@ module.exports = function(grunt) {
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
 				],
-				timeout: 5000,
 				phantomjs: {
 					'ignore-ssl-errors': true
 				}
@@ -142,7 +141,7 @@ module.exports = function(grunt) {
 
 		watch: {
 			files: ['test/**/*', 'src/**/*'],
-			tasks: ['jshint', 'jsbeautifier', 'browserify', 'jasmine::build']
+			tasks: ['eslint', 'jsbeautifier', 'browserify', 'jasmine::build']
 		}
 	});
 };

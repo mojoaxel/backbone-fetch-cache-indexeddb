@@ -87,6 +87,17 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
 };
 
 /**
+ * Clear the database.
+ *
+ * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#clear
+ */
+Store.prototype.clear = function(onSuccess, onError) {
+	var store = this;
+	store.idb.clear(onSuccess, onError || errorHandler);
+	return store;
+};
+
+/**
  * Clear and remove the database.
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#clear
@@ -94,8 +105,13 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
  */
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
-	store.idb.clear(onSuccess, onError || errorHandler);
-	delete store.idb;
+	store.idb.clear(function() {
+		store.idb.deleteDatabase();
+		delete store.idb;
+		if (onSuccess) {
+			onSuccess();
+		}
+	}, onError || errorHandler);
 	return store;
 };
 

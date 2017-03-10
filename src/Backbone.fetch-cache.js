@@ -70,6 +70,7 @@ function handleSettings(cache, settings) {
  * TODO
  */
 Backbone.fetchCache.init = function(settings, callback) {
+	log("Backbone.fetchCache.init: ", settings);
 	var cache = Backbone.fetchCache;
 	cache = handleSettings(cache, settings);
 
@@ -90,6 +91,7 @@ Backbone.fetchCache.init = function(settings, callback) {
  */
 Backbone.fetchCache.chechIfInit = function() {
 	var cache = Backbone.fetchCache;
+	log("Backbone.fetchCache.chechIfInit: ", cache.isInit);
 	if (!cache.isInit) {
 		window.console.warn('FetchCache is not initialized and therefore not active. Please initialize the store first by calling "Backbone.fetchcache.init"');
 	}
@@ -100,16 +102,42 @@ Backbone.fetchCache.chechIfInit = function() {
  * TODO
  */
 Backbone.fetchCache.clear = function(onSuccess) {
+	log("Backbone.fetchCache.clear");
 	var cache = Backbone.fetchCache;
 	if (!cache.chechIfInit()) {
+		return cache;
+	}
+
+	cache.store.clear(function() {
+		log("CLEAR successfull");
+		cache.trigger('clear', cache);
+		if (onSuccess) {
+			onSuccess(cache);
+		}
+	});
+
+	return cache;
+};
+
+/**
+ * TODO
+ */
+Backbone.fetchCache.purge = function(onSuccess) {
+	log("Backbone.fetchCache.purge");
+	var cache = Backbone.fetchCache;
+	if (!cache.isInit) {
+		if (onSuccess) {
+			onSuccess(cache);
+		}
 		return cache;
 	}
 
 	cache.store.purge(function() {
 		cache.isInit = false;
 		delete cache.store;
-		log("CLEAR successfull");
-		Backbone.fetchCache.trigger('clear', cache);
+		log("PURGE successfull");
+		cache.trigger('clear', cache);
+		cache.stopListening();
 		if (onSuccess) {
 			onSuccess(cache);
 		}

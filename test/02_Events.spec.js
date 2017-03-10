@@ -19,10 +19,10 @@ describe('Backbone.fetchCache (Events)', function() {
 			});
 			Backbone.fetchCache.init(testSettings, function() {
 				Backbone.fetchCache.clear(function() {
-					//setTimeout(function() {
-					expect(eventWasFired).toBe(true);
-					done();
-					//}, 100);
+					setTimeout(function() {
+						expect(eventWasFired).toBe(true);
+						done();
+					}, 100);
 				});
 			});
 		});
