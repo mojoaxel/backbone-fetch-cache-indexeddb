@@ -23,8 +23,10 @@ var wrapError = function(model, options) {
 		if (error) {
 			error.call(context, model, resp, options);
 		}
+		Backbone.fetchCache.trigger('error');
 		model.trigger('error', model, resp, options);
 	};
+	return error;
 };
 
 function genUrl(modCol, options) {
@@ -35,10 +37,22 @@ function genUrl(modCol, options) {
 	return url + (options.data ? '?' + $.param(options.data) : '');
 }
 
+function defaultErrorHandler(error) {
+	Backbone.fetchCache.trigger('error', error);
+	throw new Error("Error in Backbone.fetchCache: ", error);
+}
+
 Backbone.fetchCache = {
 	isInit: false,
+
+	// if true all model and all collections get cached
 	enabled: false,
-	maxAge: Infinity
+
+	// set this to <= 0 to force a invalidation of the cache
+	maxAge: Infinity,
+
+	// if you overwrite this no "error" events get triggered
+	onError: defaultErrorHandler
 };
 
 // @see http://backbonejs.org/#Events
@@ -81,7 +95,7 @@ Backbone.fetchCache.init = function(settings, callback) {
 		if (callback) {
 			callback(cache);
 		}
-	});
+	}, cache.onError);
 
 	return cache;
 };
@@ -179,6 +193,10 @@ function fetch(options) {
 
 	var dataFromCache = false;
 	var key = genUrl(modCol, options);
+
+	// use options.error or throw new error
+	var errorHandler = wrapError(this, options) || Backbone.fetchCache.onError;
+
 	var orgSuccess = options.success; // from original source
 	options.success = function(modCol, response, opts) { // from original source
 
@@ -211,7 +229,7 @@ function fetch(options) {
 			Backbone.fetchCache.store.setItem(key, data, function() {
 				Backbone.fetchCache.trigger('setitem', key, data);
 				ready(data.data);
-			});
+			}, errorHandler);
 		} else {
 			ready(response);
 
@@ -219,8 +237,6 @@ function fetch(options) {
 			modCol.trigger('sync', modCol, response, options);
 		}
 	};
-
-	wrapError(this, options); // from original source
 
 	modCol.trigger('cacherequest', modCol, options);
 
@@ -269,9 +285,7 @@ function fetch(options) {
 		// resolve the returned promise when the AJAX call completes
 		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
 		deferred.abort = jqXHR.abort;
-	}, function(error) {
-		throw new Error("could not getItem. ", error);
-	});
+	}, errorHandler);
 
 	// return a promise which provides the same methods as a jqXHR object
 	return deferred.promise();

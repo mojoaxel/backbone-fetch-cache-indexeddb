@@ -16,7 +16,7 @@ function errorHandler(err) {
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#IDBStore
  */
-var Store = function(settings, onStoreReady) {
+var Store = function(settings, onStoreReady, onError) {
 	var store = this;
 
 	store.settings = settings || {};
@@ -26,7 +26,7 @@ var Store = function(settings, onStoreReady) {
 		storeName: store.settings.name,
 		keyPath: null, //important for out-of-line keys!
 		autoIncrement: false,
-		onError: errorHandler,
+		onError: onError || errorHandler,
 		onStoreReady: function() {
 			onStoreReady(store.idb);
 		}
