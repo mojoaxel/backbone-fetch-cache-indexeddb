@@ -13,12 +13,13 @@ var superMethods = {
 };
 
 var log = function(msg) {
-	window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
+	//window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
 };
 
 // Wrap an optional error callback with a fallback error event.
 var wrapError = function(model, options) {
 	var error = options.error;
+	var context = options.context || model;
 	options.error = function(resp) {
 		if (error) {
 			error.call(context, model, resp, options);
@@ -103,9 +104,9 @@ Backbone.fetchCache.init = function(settings, callback) {
 /**
  * TODO
  */
-Backbone.fetchCache.chechIfInit = function() {
+Backbone.fetchCache.checkIfInit = function() {
 	var cache = Backbone.fetchCache;
-	log("Backbone.fetchCache.chechIfInit: ", cache.isInit);
+	log("Backbone.fetchCache.checkIfInit: ", cache.isInit);
 	if (!cache.isInit) {
 		window.console.warn('FetchCache is not initialized and therefore not active. Please initialize the store first by calling "Backbone.fetchcache.init"');
 	}
@@ -118,7 +119,7 @@ Backbone.fetchCache.chechIfInit = function() {
 Backbone.fetchCache.clear = function(onSuccess) {
 	log("Backbone.fetchCache.clear");
 	var cache = Backbone.fetchCache;
-	if (!cache.chechIfInit()) {
+	if (!cache.checkIfInit()) {
 		return cache;
 	}
 
@@ -186,7 +187,7 @@ function fetch(options) {
 	//Bypass caching if it's not enabled
 	if ((_.isBoolean(options.cache) && options.cache === false) ||
 		(Backbone.fetchCache.enabled === false && _.isUndefined(options.cache)) ||
-		(!Backbone.fetchCache.chechIfInit())) {
+		(!Backbone.fetchCache.checkIfInit())) {
 		// Delegate to the actual fetch method to get the values from the server
 		return superMethods[type].fetch.call(modCol, options);
 	}
