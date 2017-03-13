@@ -1,6 +1,6 @@
 {
   "name": "backbone-fetch-cache-indexeddb",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Caching for Backbone's fetch method using IndexedDB",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
