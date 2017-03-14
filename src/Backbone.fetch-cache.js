@@ -40,7 +40,7 @@ function genUrl(modCol, options) {
 
 function defaultErrorHandler(error) {
 	Backbone.fetchCache.trigger('error', error);
-	throw new Error("Error in Backbone.fetchCache: ", error);
+	throw new Error("Error in Backbone.fetchCache: " + JSON.stringify(error));
 }
 
 Backbone.fetchCache = {
