@@ -175,14 +175,9 @@ function fetch(options) {
 
 	// from original source
 	var modCol = this;
-	var deferred = new $.Deferred();
-
-	// from original source
 	options = _.extend({
 		parse: true
 	}, options);
-
-	var context = options.context || this;
 
 	//Bypass caching if it's not enabled
 	if ((_.isBoolean(options.cache) && options.cache === false) ||
@@ -191,6 +186,9 @@ function fetch(options) {
 		// Delegate to the actual fetch method to get the values from the server
 		return superMethods[type].fetch.call(modCol, options);
 	}
+
+	var deferred = new $.Deferred();
+	var context = options.context || this;
 
 	var dataFromCache = false;
 	var key = genUrl(modCol, options);
