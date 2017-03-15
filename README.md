@@ -41,19 +41,20 @@ Backbone.fetchcache.init({
 	maxAge: Infinity
 })
 ```
+### Options
 
-### name
+#### name
 _**REQUIRED**_
 
 The Name of your IndexedDB Store. This should be unique to your application.
 
-### enabled
+#### enabled
 _OPTIONAL_
 
 Enable the cache by default for all requests. This can be overwritten by setting `cache:false` or `cache:true` on the inidividual `fetch` call. <br>
 [Default: `false`]
 
-### maxAge
+#### maxAge
 _OPTIONAL_
 
 Default max age in seconds. This can be overwritten by setting `maxAge` on the inidividual `fetch` call. <br>
@@ -90,6 +91,21 @@ model.fetch({
   maxAge: -1
 })
 ```
+
+## Events
+
+`Backbone.fetchcache` extends [Backbone.Events](http://backbonejs.org/#Events) and provides the following events.<br>
+These events are mainly for logging or debugging puropses:
+
+* `getitem`: An item was read from the cache. Callback parameters: `key`, `data`, `maxAge`.
+* `setitem`: An item was saved to the cache. Callback parameters: `key`, `data`.
+* `aged`: An item was found but is is too old to be valid. Callback parameters: `key`, `data`, `maxAge`.
+* `notfound`: This is event is fired, when the requested item does not exist in the cache. Callback parameters: `key`.
+* `clear`: The cache was cleared. Callback parameters: none.
+
+In addition to the [original events](http://backbonejs.org/#Events-catalog) (e.g. `sync`, `error` ...) the following events get triggered at the model or collection:
+
+* `cacherequest`: Like the original `request` event this is fired, when a request (getItem) to the cache has started. This is usefull e.g. to show a loading-view.
 
 ## Development
 

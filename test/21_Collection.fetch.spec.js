@@ -34,7 +34,7 @@
 
 		describe('.fetch', function() {
 			beforeEach(function(done) {
-				new Backbone.fetchCache.init(testSettings, function() {
+				Backbone.fetchCache.init(testSettings, function() {
 					expect(Backbone.fetchCache.isInit).toBe(true);
 					done();
 				});

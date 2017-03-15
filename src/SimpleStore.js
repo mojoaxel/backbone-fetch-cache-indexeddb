@@ -16,7 +16,7 @@ function errorHandler(err) {
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#IDBStore
  */
-var Store = function(settings, onStoreReady) {
+var Store = function(settings, onStoreReady, onError) {
 	var store = this;
 
 	store.settings = settings || {};
@@ -26,7 +26,7 @@ var Store = function(settings, onStoreReady) {
 		storeName: store.settings.name,
 		keyPath: null, //important for out-of-line keys!
 		autoIncrement: false,
-		onError: errorHandler,
+		onError: onError || errorHandler,
 		onStoreReady: function() {
 			onStoreReady(store.idb);
 		}
@@ -75,9 +75,25 @@ Store.prototype.setItem = function(key, value, onSuccess, onError) {
  */
 Store.prototype.getItem = function(key, onSuccess, onError) {
 	var store = this;
-	store.idb.get(store._formatKey(key), function(data) {
-		onSuccess(store._deSerializeData(data));
-	}, onError || errorHandler);
+	try {
+		store.idb.get(store._formatKey(key), function(data) {
+			onSuccess(store._deSerializeData(data));
+		}, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
+	return store;
+};
+
+/**
+ * Clear the database.
+ *
+ * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#clear
+ */
+Store.prototype.clear = function(onSuccess, onError) {
+	var store = this;
+	store.idb.clear(onSuccess, onError || errorHandler);
 	return store;
 };
 
@@ -89,8 +105,13 @@ Store.prototype.getItem = function(key, onSuccess, onError) {
  */
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
-	store.idb.clear(onSuccess, onError || errorHandler);
-	delete store.idb;
+	store.idb.clear(function() {
+		store.idb.deleteDatabase();
+		delete store.idb;
+		if (onSuccess) {
+			onSuccess();
+		}
+	}, onError || errorHandler);
 	return store;
 };
 

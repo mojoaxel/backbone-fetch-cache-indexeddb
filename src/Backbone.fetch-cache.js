@@ -13,18 +13,21 @@ var superMethods = {
 };
 
 var log = function(msg) {
-	window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
+	//window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
 };
 
 // Wrap an optional error callback with a fallback error event.
 var wrapError = function(model, options) {
 	var error = options.error;
+	var context = options.context || model;
 	options.error = function(resp) {
 		if (error) {
-			error.call(options.context, model, resp, options);
+			error.call(context, model, resp, options);
 		}
+		Backbone.fetchCache.trigger('error');
 		model.trigger('error', model, resp, options);
 	};
+	return error;
 };
 
 function getUrl(modCol, options) {
@@ -36,11 +39,26 @@ function getUrl(modCol, options) {
 	return url + (options.data ? '?' + $.param(options.data) : '');
 }
 
+function defaultErrorHandler(error) {
+	Backbone.fetchCache.trigger('error', error);
+	throw new Error("Error in Backbone.fetchCache: " + JSON.stringify(error));
+}
+
 Backbone.fetchCache = {
 	isInit: false,
+
+	// if true all model and all collections get cached
 	enabled: false,
-	maxAge: Infinity
+
+	// set this to <= 0 to force a invalidation of the cache
+	maxAge: Infinity,
+
+	// if you overwrite this no "error" events get triggered
+	onError: defaultErrorHandler
 };
+
+// @see http://backbonejs.org/#Events
+_.extend(Backbone.fetchCache, Backbone.Events);
 
 function handleSettings(cache, settings) {
 	settings = settings || {};
@@ -68,6 +86,7 @@ function handleSettings(cache, settings) {
  * TODO
  */
 Backbone.fetchCache.init = function(settings, callback) {
+	log("Backbone.fetchCache.init: ", settings);
 	var cache = Backbone.fetchCache;
 	cache = handleSettings(cache, settings);
 
@@ -78,7 +97,7 @@ Backbone.fetchCache.init = function(settings, callback) {
 		if (callback) {
 			callback(cache);
 		}
-	});
+	}, cache.onError);
 
 	return cache;
 };
@@ -86,8 +105,9 @@ Backbone.fetchCache.init = function(settings, callback) {
 /**
  * TODO
  */
-Backbone.fetchCache.chechIfInit = function() {
+Backbone.fetchCache.checkIfInit = function() {
 	var cache = Backbone.fetchCache;
+	log("Backbone.fetchCache.checkIfInit: ", cache.isInit);
 	if (!cache.isInit) {
 		window.console.warn('FetchCache is not initialized and therefore not active. Please initialize the store first by calling "Backbone.fetchcache.init"');
 	}
@@ -98,17 +118,44 @@ Backbone.fetchCache.chechIfInit = function() {
  * TODO
  */
 Backbone.fetchCache.clear = function(onSuccess) {
+	log("Backbone.fetchCache.clear");
 	var cache = Backbone.fetchCache;
-	if (!cache.chechIfInit()) {
+	if (!cache.checkIfInit()) {
+		return cache;
+	}
+
+	cache.store.clear(function() {
+		log("CLEAR successfull");
+		cache.trigger('clear', cache);
+		if (onSuccess) {
+			onSuccess(cache);
+		}
+	});
+
+	return cache;
+};
+
+/**
+ * TODO
+ */
+Backbone.fetchCache.purge = function(onSuccess) {
+	log("Backbone.fetchCache.purge");
+	var cache = Backbone.fetchCache;
+	if (!cache.isInit) {
+		if (onSuccess) {
+			onSuccess(cache);
+		}
 		return cache;
 	}
 
 	cache.store.purge(function() {
 		cache.isInit = false;
 		delete cache.store;
-		log("CLEAR successfull");
+		log("PURGE successfull");
+		cache.trigger('clear', cache);
+		cache.stopListening();
 		if (onSuccess) {
-			onSuccess.call(cache);
+			onSuccess(cache);
 		}
 	});
 
@@ -128,67 +175,71 @@ function fetch(options) {
 	var type = (this instanceof Backbone.Model) ? MODEL : COLLECTION;
 
 	var modCol = this;
-	var key = getUrl(modCol, options);
 
 	// from original source
 	options = _.extend({
 		parse: true
 	}, options);
 
-	options.context = options.context || this;
-
 	//Bypass caching if it's not enabled
-	if (!Backbone.fetchCache.chechIfInit() || (!Backbone.fetchCache.enabled && !options.cache)) {
-		return superMethods[type].fetch.apply(this, arguments);
+	if ((_.isBoolean(options.cache) && options.cache === false) ||
+		(Backbone.fetchCache.enabled === false && _.isUndefined(options.cache)) ||
+		(!Backbone.fetchCache.checkIfInit())) {
+		// Delegate to the actual fetch method to get the values from the server
+		return superMethods[type].fetch.call(modCol, options);
 	}
 
 	var deferred = new $.Deferred();
-	modCol.trigger('request', modCol, deferred, options);
+	var context = options.context || this;
 
 	var dataFromCache = false;
-	var orgSuccess = options.success; // from original source
+	var key = getUrl(modCol, options);
 
-	options.success = function(resp) { // from original source
+	// use options.error or throw new error
+	var errorHandler = wrapError(this, options) || Backbone.fetchCache.onError;
+
+	var orgSuccess = options.success; // from original source
+	options.success = function(modCol, response, opts) { // from original source
 
 		// simulate a ajax success
-		deferred.resolveWith(options.context, [modCol]);
+		deferred.resolveWith(context, [modCol]);
 
-		function ready() {
+		function ready(data) {
 			if (type === MODEL) {
-				var serverAttrs = options.parse ? modCol.parse(resp, options) : resp;
-				modCol.clear({
-					silent: true
-				});
+				var serverAttrs = options.parse ? modCol.parse(data, options) : data;
+
 				if (!modCol.set(serverAttrs, options)) {
 					return false;
 				}
 			} else {
 				var method = options.reset ? 'reset' : 'set';
-				modCol[method](resp, options);
+				modCol[method](data, options);
 			}
 
 			// from original source
 			if (orgSuccess) {
-				orgSuccess.call(options.context, modCol, resp, options);
+				orgSuccess.call(context, modCol, data, options);
 			}
-			// from original source
-			modCol.trigger('sync', modCol, resp, options);
 		}
 
 		if (!dataFromCache) {
 			var data = {
 				timestamp: new Date().getTime(),
-				data: resp
+				data: response
 			};
 			Backbone.fetchCache.store.setItem(key, data, function() {
-				ready();
-			});
+				Backbone.fetchCache.trigger('setitem', key, data);
+				ready(data.data);
+			}, errorHandler);
 		} else {
-			ready();
+			ready(response);
+
+			// from original source
+			modCol.trigger('sync', modCol, response, options);
 		}
 	};
 
-	wrapError(this, options); // from original source
+	modCol.trigger('cacherequest', modCol, options);
 
 	Backbone.fetchCache.store.getItem(key, function(resp) {
 
@@ -212,27 +263,30 @@ function fetch(options) {
 			// get age (= difference from now) in milliseconds
 			var age = Math.round(new Date().getTime() - resp.timestamp);
 
+			Backbone.fetchCache.trigger('getitem', key, resp, maxAge);
+
 			if (age < maxAge) {
 				// return data from cache
 				dataFromCache = true;
-				options.success.call(modCol, resp.data);
+				options.success.call(modCol, modCol, resp.data);
 				return;
+			} else {
+				Backbone.fetchCache.trigger('aged', key, resp, maxAge);
 			}
+		} else {
+			Backbone.fetchCache.trigger('notfound', key);
 		}
 
 		// get data from server
 		dataFromCache = false;
 
-		// Delegate to the actual fetch method and store the attributes in the cache
-		var jqXHR = superMethods[type].sync.call(modCol, 'read', modCol, options);
+		// Delegate to the actual fetch method to get the values from the server
+		var jqXHR = superMethods[type].fetch.call(modCol, options);
 
 		// resolve the returned promise when the AJAX call completes
-		jqXHR.done(_.bind(deferred.resolve, options.context, modCol))
-			.fail(_.bind(deferred.reject, options.context, modCol));
+		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
 		deferred.abort = jqXHR.abort;
-	}, function() {
-		window.console.error("error");
-	});
+	}, errorHandler);
 
 	// return a promise which provides the same methods as a jqXHR object
 	return deferred.promise();

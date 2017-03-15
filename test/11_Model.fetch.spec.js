@@ -30,7 +30,7 @@ describe('Backbone.Model', function() {
 	describe('.fetch', function() {
 
 		beforeEach(function(done) {
-			new Backbone.fetchCache.init(testSettings, function() {
+			Backbone.fetchCache.init(testSettings, function() {
 				expect(Backbone.fetchCache.isInit).toBe(true);
 				done();
 			});
@@ -116,6 +116,7 @@ describe('Backbone.Model', function() {
 						data: alternativeTruth
 					};
 					// overwrite cache with new data
+					model.clear();
 					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
@@ -144,6 +145,7 @@ describe('Backbone.Model', function() {
 						data: alternativeTruth
 					};
 					// overwrite cache with new data
+					model.clear();
 					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						// fetch a second time with forced update
 						model.fetch({
@@ -169,6 +171,7 @@ describe('Backbone.Model', function() {
 						timestamp: new Date().getTime(),
 						data: alternativeTruth
 					};
+					model.clear();
 					Backbone.fetchCache.store.setItem(genUrl(model, options), data, function() {
 						setTimeout(function() {
 							// fetch a second time
