@@ -20,7 +20,7 @@ var log = function(msg) {
 var wrapError = function(model, options) {
 	var error = options.error;
 	var context = options.context || model;
-	options.error = function(resp) {
+	options.error = function(model, resp, options) {
 		if (error) {
 			error.call(context, model, resp, options);
 		}
