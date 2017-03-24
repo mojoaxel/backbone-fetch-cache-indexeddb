@@ -41,10 +41,12 @@ function getUrl(modCol, options) {
 
 function defaultErrorHandler(error) {
 	Backbone.fetchCache.trigger('error', error);
+	/*
 	var errorMsg = error.description;
 	errorMsg = errorMsg || error.target.error.name;
 	errorMsg = errorMsg || JSON.stringify(error);
 	throw new Error("Error in Backbone.fetchCache: " + errorMsg);
+	*/
 }
 
 Backbone.fetchCache = {
