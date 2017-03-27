@@ -26,7 +26,7 @@ var wrapError = function(modCol, options) {
 			error.call(context, modCol, resp, options);
 		}
 		Backbone.fetchCache.trigger('error');
-		model.trigger('error', modCol, resp, options);
+		modCol.trigger('error', modCol, resp, options);
 	};
 	return error;
 };
