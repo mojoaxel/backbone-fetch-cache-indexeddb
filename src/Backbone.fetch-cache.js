@@ -18,6 +18,7 @@ var log = function(msg) {
 
 // Wrap an optional error callback with a fallback error event.
 var wrapError = function(modCol, options) {
+	options = options || {};
 	var error = options.error;
 	var context = options.context || modCol;
 	options.error = function(modCol, resp, options) {
