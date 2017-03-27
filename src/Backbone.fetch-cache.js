@@ -20,7 +20,7 @@ var log = function(msg) {
 var wrapError = function(modCol, options) {
 	var error = options.error;
 	var context = options.context || modCol;
-	options.error = function(resp) {
+	options.error = function(modCol, resp, options) {
 		if (error) {
 			error.call(context, modCol, resp, options);
 		}
@@ -32,7 +32,12 @@ var wrapError = function(modCol, options) {
 
 function defaultErrorHandler(error) {
 	Backbone.fetchCache.trigger('error', error);
-	throw new Error("Error in Backbone.fetchCache: " + JSON.stringify(error));
+	/*
+	var errorMsg = error.description;
+	errorMsg = errorMsg || error.target.error.name;
+	errorMsg = errorMsg || JSON.stringify(error);
+	throw new Error("Error in Backbone.fetchCache: " + errorMsg);
+	*/
 }
 
 function getUrl(modCol, options) {
@@ -232,7 +237,10 @@ function fetch(options) {
 			Backbone.fetchCache.store.setItem(key, data, function() {
 				Backbone.fetchCache.trigger('setitem', key, data);
 				ready(data.data);
-			}, errorHandler);
+			}, function(error) {
+				errorHandler(error);
+				ready(data.data);
+			});
 		} else {
 			ready(response);
 		}
@@ -278,14 +286,24 @@ function fetch(options) {
 
 		// get data from server
 		dataFromCache = false;
-
 		// Delegate to the actual fetch method to get the values from the server
 		var jqXHR = superMethods[type].fetch.call(modCol, options);
-
 		// resolve the returned promise when the AJAX call completes
 		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
 		deferred.abort = jqXHR.abort;
-	}, errorHandler);
+
+	}, function(error) {
+		errorHandler(error);
+		/* In case if an error while trying to read crom indexedDB fallback to default ajax request. */
+
+		// get data from server
+		dataFromCache = false;
+		// Delegate to the actual fetch method to get the values from the server
+		var jqXHR = superMethods[type].fetch.call(modCol, options);
+		// resolve the returned promise when the AJAX call completes
+		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
+		deferred.abort = jqXHR.abort;
+	});
 
 	// return a promise which provides the same methods as a jqXHR object
 	return deferred.promise();
