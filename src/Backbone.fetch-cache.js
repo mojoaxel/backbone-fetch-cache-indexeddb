@@ -17,18 +17,23 @@ var log = function(msg) {
 };
 
 // Wrap an optional error callback with a fallback error event.
-var wrapError = function(model, options) {
+var wrapError = function(modCol, options) {
 	var error = options.error;
-	var context = options.context || model;
+	var context = options.context || modCol;
 	options.error = function(resp) {
 		if (error) {
-			error.call(context, model, resp, options);
+			error.call(context, modCol, resp, options);
 		}
 		Backbone.fetchCache.trigger('error');
-		model.trigger('error', model, resp, options);
+		model.trigger('error', modCol, resp, options);
 	};
 	return error;
 };
+
+function defaultErrorHandler(error) {
+	Backbone.fetchCache.trigger('error', error);
+	throw new Error("Error in Backbone.fetchCache: " + JSON.stringify(error));
+}
 
 function getUrl(modCol, options) {
 	options = options || {};
@@ -37,11 +42,6 @@ function getUrl(modCol, options) {
 		throw new Error('A "url" property or function must be specified');
 	}
 	return url + (options.data ? '?' + $.param(options.data) : '');
-}
-
-function defaultErrorHandler(error) {
-	Backbone.fetchCache.trigger('error', error);
-	throw new Error("Error in Backbone.fetchCache: " + JSON.stringify(error));
 }
 
 Backbone.fetchCache = {
@@ -220,6 +220,8 @@ function fetch(options) {
 			if (orgSuccess) {
 				orgSuccess.call(context, modCol, data, options);
 			}
+
+			modCol.trigger('sync', modCol, response, options);
 		}
 
 		if (!dataFromCache) {
@@ -233,9 +235,6 @@ function fetch(options) {
 			}, errorHandler);
 		} else {
 			ready(response);
-
-			// from original source
-			modCol.trigger('sync', modCol, response, options);
 		}
 	};
 
