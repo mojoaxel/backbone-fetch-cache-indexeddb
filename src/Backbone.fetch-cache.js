@@ -12,8 +12,12 @@ var superMethods = {
 	}
 };
 
-var log = function(msg) {
-	//window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
+var log = function(level, msg) {
+	if (level === "WARN") {
+		window.console.warn("Backbone.fetchCache: ", msg, arguments[1] || '');
+	} else {
+		//window.console.log("Backbone.fetchCache: ", msg, arguments[1] || '');
+	}
 };
 
 // Wrap an optional error callback with a fallback error event.
@@ -25,7 +29,7 @@ var wrapError = function(modCol, options) {
 		if (error) {
 			error.call(context, modCol, resp, options);
 		}
-		Backbone.fetchCache.trigger('error');
+		Backbone.fetchCache.trigger('error', resp);
 		modCol.trigger('error', modCol, resp, options);
 	};
 	return error;
@@ -115,7 +119,8 @@ Backbone.fetchCache.checkIfInit = function() {
 	var cache = Backbone.fetchCache;
 	log("Backbone.fetchCache.checkIfInit: ", cache.isInit);
 	if (!cache.isInit) {
-		window.console.warn('FetchCache is not initialized and therefore not active. Please initialize the store first by calling "Backbone.fetchcache.init"');
+		window.console.warn("FetchCache is not initialized and therefore not active. " +
+			"Please initialize the store first by calling \"Backbone.fetchcache.init\"");
 	}
 	return cache.isInit;
 };
@@ -195,8 +200,14 @@ function fetch(options) {
 		return superMethods[type].fetch.call(modCol, options);
 	}
 
-	var deferred = new $.Deferred();
 	var context = options.context || this;
+
+	var deferred = new $.Deferred();
+	var promise = deferred.promise();
+
+	/* simulate the normal jqXHR.abort function.
+	 * This gets overwritten by the actual abort function. */
+	promise.abort = _.bind(deferred.reject, context);
 
 	var dataFromCache = false;
 	var key = getUrl(modCol, options);
@@ -249,8 +260,34 @@ function fetch(options) {
 
 	modCol.trigger('cacherequest', modCol, options);
 
-	Backbone.fetchCache.store.getItem(key, function(resp) {
+	function doXHR() {
+		// get data from server
+		dataFromCache = false;
 
+		// Delegate to the actual fetch method to get the values from the server
+		var jqXHR = superMethods[type].fetch.call(modCol, options);
+
+		// extend the promise with the actual abort function
+		promise.abort = jqXHR.abort;
+
+		// update status information to the promise object
+		promise = _.extend(promise, _.pick(jqXHR, function(value, key, object) {
+			return !_.isFunction(value);
+		}));
+
+		// resolve the returned promise when the AJAX call completes
+		jqXHR.then(
+			_.bind(deferred.resolve, context),
+			_.bind(deferred.reject, context),
+			function(data, status, jqXHR) {
+				promise = _.extend(promise, _.pick(jqXHR, function(value, key, object) {
+					return !_.isFunction(value);
+				}));
+			}
+		);
+	}
+
+	Backbone.fetchCache.store.getItem(key, function(resp) {
 		if (resp) {
 			if (!resp.timestamp) {
 				throw new Error("Cache data has no timestamp");
@@ -271,8 +308,10 @@ function fetch(options) {
 			// get age (= difference from now) in milliseconds
 			var age = Math.round(new Date().getTime() - resp.timestamp);
 
+			// trigger event that 'getItem' was successfull
 			Backbone.fetchCache.trigger('getitem', key, resp, maxAge);
 
+			// check if data is outdated
 			if (age < maxAge) {
 				// return data from cache
 				dataFromCache = true;
@@ -280,34 +319,20 @@ function fetch(options) {
 				return;
 			} else {
 				Backbone.fetchCache.trigger('aged', key, resp, maxAge);
+				doXHR();
 			}
 		} else {
 			Backbone.fetchCache.trigger('notfound', key);
+			doXHR();
 		}
-
-		// get data from server
-		dataFromCache = false;
-		// Delegate to the actual fetch method to get the values from the server
-		var jqXHR = superMethods[type].fetch.call(modCol, options);
-		// resolve the returned promise when the AJAX call completes
-		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
-		deferred.abort = jqXHR.abort;
-
 	}, function(error) {
-		errorHandler(error);
-		/* In case if an error while trying to read crom indexedDB fallback to default ajax request. */
-
-		// get data from server
-		dataFromCache = false;
-		// Delegate to the actual fetch method to get the values from the server
-		var jqXHR = superMethods[type].fetch.call(modCol, options);
-		// resolve the returned promise when the AJAX call completes
-		jqXHR.done(_.bind(deferred.resolve, context)).fail(_.bind(deferred.reject, context));
-		deferred.abort = jqXHR.abort;
+		log('WARN', "CACHE error while reading from indexeddb. " +
+			"Falling back to ajax request");
+		doXHR();
 	});
 
 	// return a promise which provides the same methods as a jqXHR object
-	return deferred.promise();
+	return promise;
 }
 
 Backbone.Model.prototype.fetch = fetch;
