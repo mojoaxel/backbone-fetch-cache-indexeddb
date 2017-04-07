@@ -223,6 +223,8 @@ function fetch(options) {
 
 		function ready(data) {
 			var parsedData = options.parse ? modCol.parse(data, options) : data;
+
+			// set data at the Model/Collection
 			if (type === MODEL) {
 				if (!modCol.set(parsedData, options)) {
 					return false;
@@ -232,11 +234,12 @@ function fetch(options) {
 				modCol[method](parsedData, options);
 			}
 
-			// from original source
+			// Success callback with the parsed data; from original source
 			if (orgSuccess) {
-				orgSuccess.call(context, modCol, data, options);
+				orgSuccess.call(context, modCol, parsedData, options);
 			}
 
+			// Trigger `sync` event with the original response-data; from original source
 			modCol.trigger('sync', modCol, response, options);
 		}
 
