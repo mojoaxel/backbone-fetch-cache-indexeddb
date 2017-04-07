@@ -222,15 +222,14 @@ function fetch(options) {
 		deferred.resolveWith(context, [modCol]);
 
 		function ready(data) {
+			var parsedData = options.parse ? modCol.parse(data, options) : data;
 			if (type === MODEL) {
-				var serverAttrs = options.parse ? modCol.parse(data, options) : data;
-
-				if (!modCol.set(serverAttrs, options)) {
+				if (!modCol.set(parsedData, options)) {
 					return false;
 				}
 			} else {
 				var method = options.reset ? 'reset' : 'set';
-				modCol[method](data, options);
+				modCol[method](parsedData, options);
 			}
 
 			// from original source
