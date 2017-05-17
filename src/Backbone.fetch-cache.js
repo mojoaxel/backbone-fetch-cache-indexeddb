@@ -218,9 +218,6 @@ function fetch(options) {
 	var orgSuccess = options.success; // from original source
 	options.success = function(modCol, response, opts) { // from original source
 
-		// simulate a ajax success
-		deferred.resolveWith(context, [modCol]);
-
 		function ready(data) {
 			var parsedData = options.parse ? modCol.parse(data, options) : data;
 
@@ -238,6 +235,9 @@ function fetch(options) {
 			if (orgSuccess) {
 				orgSuccess.call(context, modCol, parsedData, options);
 			}
+
+			// simulate a ajax success
+			deferred.resolveWith(context, [modCol]);
 
 			// Trigger `sync` event with the original response-data; from original source
 			modCol.trigger('sync', modCol, response, options);
