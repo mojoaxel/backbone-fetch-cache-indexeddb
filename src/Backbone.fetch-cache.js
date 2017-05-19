@@ -233,7 +233,7 @@ function fetch(options) {
 
 			// Success callback with the parsed data; from original source
 			if (orgSuccess) {
-				orgSuccess.call(context, modCol, parsedData, options);
+				orgSuccess.call(context, modCol, data, options);
 			}
 
 			// simulate a ajax success
