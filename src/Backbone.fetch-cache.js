@@ -219,25 +219,23 @@ function fetch(options) {
 	options.success = function(modCol, response, opts) { // from original source
 
 		function ready(data) {
-			//note: parsing is not necessary because the set/reset function calls parse
+			var parsedData = options.parse ? modCol.parse(data, options) : data;
+			options.parse = false;
 
 			// set data at the Model/Collection
 			if (type === MODEL) {
-				if (!modCol.set(data, options)) {
+				if (!modCol.set(parsedData, options)) {
 					return false;
 				}
 			} else {
 				var method = options.reset ? 'reset' : 'set';
-				modCol[method](data, options);
+				modCol[method](parsedData, options);
 			}
 
 			// Success callback with the parsed data; from original source
 			if (orgSuccess) {
-				orgSuccess.call(context, modCol, data, options);
+				orgSuccess.call(context, modCol, parsedData, options);
 			}
-
-			// simulate a ajax success
-			deferred.resolveWith(context, [modCol]);
 
 			// Trigger `sync` event with the original response-data; from original source
 			modCol.trigger('sync', modCol, response, options);
