@@ -219,16 +219,16 @@ function fetch(options) {
 	options.success = function(modCol, response, opts) { // from original source
 
 		function ready(data) {
-			var parsedData = options.parse ? modCol.parse(data, options) : data;
+			//note: parsing is not necessary because the set/reset function calls parse
 
 			// set data at the Model/Collection
 			if (type === MODEL) {
-				if (!modCol.set(parsedData, options)) {
+				if (!modCol.set(data, options)) {
 					return false;
 				}
 			} else {
 				var method = options.reset ? 'reset' : 'set';
-				modCol[method](parsedData, options);
+				modCol[method](data, options);
 			}
 
 			// Success callback with the parsed data; from original source
