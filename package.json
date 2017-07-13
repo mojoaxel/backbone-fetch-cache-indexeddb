@@ -1,6 +1,6 @@
 {
   "name": "backbone-fetch-cache-indexeddb",
-  "version": "4.5.3",
+  "version": "4.5.4",
   "description": "Caching for Backbone's fetch method using IndexedDB",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
@@ -40,6 +40,6 @@
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "idb-wrapper": "mojoaxel/IDBWrapper"
+    "idb-wrapper": "mojoaxel/IDBWrapper#c4443153670ae1cbeaf1b95945b89fcb1557c000"
   }
 }
