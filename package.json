@@ -40,6 +40,6 @@
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "idb-wrapper": "^1.7.1"
+    "idb-wrapper": "mojoaxel/IDBWrapper"
   }
 }
