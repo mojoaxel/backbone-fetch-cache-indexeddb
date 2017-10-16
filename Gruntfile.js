@@ -112,9 +112,6 @@ module.exports = function(grunt) {
 					pure_funcs: "'[log]'",
 					dead_code: true
 				},
-				mangle: {
-					except: ['_', 'Backbone', '$']
-				},
 				preserveComments: false
 			},
 			dist: {

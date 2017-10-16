@@ -40,7 +40,7 @@ describe('FetchCache', function() {
 			};
 			expect(function() {
 				Backbone.fetchCache.init(settings, function() {});
-			}).toThrow(new Error('Setting missing. The FetchCache needs a \"name\"'));
+			}).toThrow(new Error('Setting missing. The FetchCache needs a "name"'));
 		});
 
 		it('fetchcache.init must be called before fetch with cache works', function(done) {
