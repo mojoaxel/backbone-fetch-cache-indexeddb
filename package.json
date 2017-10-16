@@ -27,16 +27,16 @@
   "devDependencies": {
     "backbone": "^1.3.3",
     "grunt": "^1.0.1",
-    "grunt-browserify": "^5.0.0",
+    "grunt-browserify": "^5.2.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-jasmine": "^1.1.0",
-    "grunt-contrib-uglify": "^2.1.0",
+    "grunt-contrib-uglify": "^3.1.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-eslint": "^19.0.0",
+    "grunt-eslint": "^20.1.0",
     "grunt-jsbeautifier": "^0.2.13",
-    "grunt-jsinspect": "^2.0.0",
-    "jquery": "^3.1.1",
-    "uglify-js": "^2.7.5",
+    "grunt-jsinspect": "^3.0.0",
+    "jquery": "^3.2.1",
+    "uglify-js": "^3.1.4",
     "underscore": "^1.8.3"
   },
   "dependencies": {
