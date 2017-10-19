@@ -292,9 +292,6 @@ function fetch(options) {
 			if (!resp.timestamp) {
 				throw new Error("Cache data has no timestamp");
 			}
-			if (!resp.data) {
-				throw new Error("Cache data has no data");
-			}
 
 			// try to get "maxAge" from options
 			var maxAge = _.result(options, "maxAge");
