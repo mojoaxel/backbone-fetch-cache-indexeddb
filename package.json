@@ -1,6 +1,6 @@
 {
   "name": "backbone-fetch-cache-indexeddb",
-  "version": "4.5.7",
+  "version": "4.5.8",
   "description": "Caching for Backbone's fetch method using IndexedDB",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
@@ -30,16 +30,16 @@
     "grunt-browserify": "^5.2.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-jasmine": "^1.1.0",
-    "grunt-contrib-uglify": "^3.1.0",
+    "grunt-contrib-uglify": "^3.3.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-eslint": "^20.1.0",
     "grunt-jsbeautifier": "^0.2.13",
     "grunt-jsinspect": "^3.0.0",
-    "jquery": "^3.2.1",
-    "uglify-js": "^3.1.4",
+    "jquery": "^3.3.1",
+    "uglify-js": "^3.3.9",
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "idb-wrapper": "mojoaxel/IDBWrapper#c4443153670ae1cbeaf1b95945b89fcb1557c000"
+    "idb-wrapper": "github:mojoaxel/IDBWrapper#c4443153670ae1cbeaf1b95945b89fcb1557c000"
   }
 }
