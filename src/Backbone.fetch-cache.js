@@ -49,7 +49,8 @@ function getUrl(modCol, options) {
 	options = options || {};
 	var url = _.result(modCol, "url");
 	if (_.isUndefined(url) || !url.length) {
-		throw new Error('A "url" property or function must be specified');
+		window.console.warn(JSON.stringify(modCol));
+		throw new Error('The model/collection is missing the "url" property or function');
 	}
 	return url + (options.data ? '?' + $.param(options.data) : '');
 }
