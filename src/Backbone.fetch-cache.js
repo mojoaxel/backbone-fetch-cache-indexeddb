@@ -127,7 +127,7 @@ Backbone.fetchCache.checkIfInit = function() {
 };
 
 /**
- * TODO
+ * Empty the database.
  */
 Backbone.fetchCache.clear = function(onSuccess) {
 	log("Backbone.fetchCache.clear");
@@ -148,7 +148,7 @@ Backbone.fetchCache.clear = function(onSuccess) {
 };
 
 /**
- * TODO
+ * Empty and remove the database.
  */
 Backbone.fetchCache.purge = function(onSuccess) {
 	log("Backbone.fetchCache.purge");

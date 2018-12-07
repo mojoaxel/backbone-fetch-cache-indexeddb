@@ -12,6 +12,28 @@ function errorHandler(err) {
 }
 
 /**
+ * TODO
+ */
+function formatKey(key) {
+	// no key formating by default
+	return key;
+}
+
+/**
+ * TODO
+ */
+function serializeData(data) {
+	return data ? JSON.stringify(data) : null;
+}
+
+/**
+ * TODO
+ */
+function deserializeData(data) {
+	return data ? JSON.parse(data) : null;
+}
+
+/**
  * Create a new IndexDb store.
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#IDBStore
@@ -36,35 +58,13 @@ var Store = function(settings, onStoreReady, onError) {
 };
 
 /**
- * TODO
- */
-Store.prototype._formatKey = function(key) {
-	// no key formating by default
-	return key;
-};
-
-/**
- * TODO
- */
-Store.prototype._serializeData = function(data) {
-	return data ? JSON.stringify(data) : null;
-};
-
-/**
- * TODO
- */
-Store.prototype._deSerializeData = function(data) {
-	return data ? JSON.parse(data) : null;
-};
-
-/**
  * Save key:value pair.
  *
  * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#put
  */
 Store.prototype.setItem = function(key, value, onSuccess, onError) {
 	var store = this;
-	store.idb.put(store._formatKey(key), store._serializeData(value), onSuccess, onError || errorHandler);
+	store.idb.put(formatKey(key), serializeData(value), onSuccess, onError || errorHandler);
 	return store;
 };
 
@@ -76,8 +76,26 @@ Store.prototype.setItem = function(key, value, onSuccess, onError) {
 Store.prototype.getItem = function(key, onSuccess, onError) {
 	var store = this;
 	try {
-		store.idb.get(store._formatKey(key), function(data) {
-			onSuccess(store._deSerializeData(data));
+		store.idb.get(formatKey(key), function(data) {
+			onSuccess(deserializeData(data));
+		}, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
+	return store;
+};
+
+/**
+ * Remove a value by key.
+ *
+ * @see https://jensarps.github.io/IDBWrapper/doc/latest/IDBStore.html#remove
+ */
+Store.prototype.removeItem = function(key, onSuccess, onError) {
+	var store = this;
+	try {
+		store.idb.remove(formatKey(key), function() {
+			onSuccess();
 		}, onError || errorHandler);
 	} catch (e) {
 		var handler = onError || errorHandler;

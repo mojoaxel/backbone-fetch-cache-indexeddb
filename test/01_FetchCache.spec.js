@@ -110,7 +110,49 @@ describe('FetchCache', function() {
 		});
 	});
 
-	describe('Backbone.fetchCache (IDBStore)', function() {
+	describe('Backbone.fetchCache.store.removeItem', function() {
+		afterEach(function(done) {
+			Backbone.fetchCache.purge(done);
+		})
+
+		it('fBackbone.fetchCache.store setItem and getItem', function(done) {
+			Backbone.fetchCache.init(testSettings, function() {
+				Backbone.fetchCache.store.setItem("key123", "value123", function() {
+					Backbone.fetchCache.store.getItem("key123", function(data) {
+						expect(data).toBe("value123");
+						Backbone.fetchCache.purge(done);
+					});
+				});
+			});
+		});
+
+		it('Backbone.fetchCache.store setItem, removeItem and getItem', function(done) {
+			Backbone.fetchCache.init(testSettings, function() {
+				Backbone.fetchCache.store.setItem("key123", "value123", function() {
+					Backbone.fetchCache.store.removeItem("key123", function() {
+						Backbone.fetchCache.store.getItem("key123", function(data) {
+							expect(data).toBe(null);
+							Backbone.fetchCache.purge(done);
+						});
+					});
+				});
+			});
+		});
+	});
+
+	describe('Backbone.fetchCache functions', function() {
+		it('check SimpleStore functions', function(done) {
+			Backbone.fetchCache.init(testSettings, function(cache) {
+				var store = cache.store;
+				expect(typeof(store.setItem)).toBe("function");
+				expect(typeof(store.getItem)).toBe("function");
+				expect(typeof(store.removeItem)).toBe("function");
+				expect(typeof(store.clear)).toBe("function");
+				expect(typeof(store.purge)).toBe("function");
+				Backbone.fetchCache.purge(done);
+			});
+		});
+
 		it('exposes all IDBStore functions', function(done) {
 			Backbone.fetchCache.init(testSettings, function(cache) {
 				var store = cache.store.idb;
