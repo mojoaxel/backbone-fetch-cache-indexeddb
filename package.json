@@ -40,6 +40,6 @@
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "idb-wrapper": "github:mojoaxel/IDBWrapper#c4443153670ae1cbeaf1b95945b89fcb1557c000"
+    "idb-wrapper": "jensarps/IDBWrapper"
   }
 }
