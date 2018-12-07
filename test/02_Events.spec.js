@@ -2,14 +2,6 @@ describe('Backbone.fetchCache (Events)', function() {
 	var testSettings = {
 		name: "testStore"
 	};
-	/*
-	var modelResponse = {
-		"foo": "bar"
-	};
-
-	var model = new Backbone.Model();
-	model.url = '/dummy/model-cache-test';
-	*/
 
 	describe('clear', function() {
 		it('event "clear" was triggered', function(done) {
