@@ -1,6 +1,6 @@
 {
   "name": "backbone-fetch-cache-indexeddb",
-  "version": "4.6.0",
+  "version": "5.0.0",
   "description": "Caching for Backbone's fetch method using IndexedDB",
   "main": "dist/backbone.fetch-cache.indexeddb.min.js",
   "scripts": {
@@ -36,10 +36,10 @@
     "grunt-jsbeautifier": "^0.2.13",
     "grunt-jsinspect": "^3.0.0",
     "jquery": "^3.3.1",
-    "uglify-js": "^3.3.9",
+    "uglify-js": "^3.4.9",
     "underscore": "^1.8.3"
   },
   "dependencies": {
-    "idb-wrapper": "jensarps/IDBWrapper"
+    "idb-wrapper": "github:jensarps/IDBWrapper"
   }
 }
