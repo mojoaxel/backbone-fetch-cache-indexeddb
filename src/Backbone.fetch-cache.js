@@ -220,8 +220,7 @@ function fetch(options) {
 	options.success = function(modCol, response, opts) { // from original source
 
 		function ready(data) {
-			var parsedData = options.parse ? modCol.parse(data, options) : data;
-			options.parse = false;
+			var parsedData = (options.parse && type === MODEL) ? modCol.parse(data, options) : data;
 
 			// set data at the Model/Collection
 			if (type === MODEL) {
@@ -265,8 +264,12 @@ function fetch(options) {
 		// get data from server
 		dataFromCache = false;
 
+		// make sure data gets not parsed before it is saved to the cache
+		var opts = _.clone(options);
+		opts.parse = false;
+
 		// Delegate to the actual fetch method to get the values from the server
-		var jqXHR = superMethods[type].fetch.call(modCol, options);
+		var jqXHR = superMethods[type].fetch.call(modCol, opts);
 
 		// extend the promise with the actual abort function
 		promise.abort = jqXHR.abort;
