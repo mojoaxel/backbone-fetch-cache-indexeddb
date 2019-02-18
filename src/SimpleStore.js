@@ -64,7 +64,12 @@ var Store = function(settings, onStoreReady, onError) {
  */
 Store.prototype.setItem = function(key, value, onSuccess, onError) {
 	var store = this;
-	store.idb.put(formatKey(key), serializeData(value), onSuccess, onError || errorHandler);
+	try {
+		store.idb.put(formatKey(key), serializeData(value), onSuccess, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
 	return store;
 };
 
@@ -111,7 +116,12 @@ Store.prototype.removeItem = function(key, onSuccess, onError) {
  */
 Store.prototype.clear = function(onSuccess, onError) {
 	var store = this;
-	store.idb.clear(onSuccess, onError || errorHandler);
+	try {
+		store.idb.clear(onSuccess, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
 	return store;
 };
 
@@ -123,13 +133,18 @@ Store.prototype.clear = function(onSuccess, onError) {
  */
 Store.prototype.purge = function(onSuccess, onError) {
 	var store = this;
-	store.idb.clear(function() {
-		store.idb.deleteDatabase();
-		delete store.idb;
-		if (onSuccess) {
-			onSuccess();
-		}
-	}, onError || errorHandler);
+	try {
+		store.idb.clear(function() {
+			store.idb.deleteDatabase();
+			delete store.idb;
+			if (onSuccess) {
+				onSuccess();
+			}
+		}, onError || errorHandler);
+	} catch (e) {
+		var handler = onError || errorHandler;
+		handler(e);
+	}
 	return store;
 };
 
