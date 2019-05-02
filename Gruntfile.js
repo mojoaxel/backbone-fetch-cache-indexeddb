@@ -66,10 +66,7 @@ module.exports = function(grunt) {
 					'node_modules/jquery/dist/jquery.js',
 					'node_modules/underscore/underscore.js',
 					'node_modules/backbone/backbone.js'
-				],
-				phantomjs: {
-					'ignore-ssl-errors': true
-				}
+				]
 			}
 		},
 
@@ -107,7 +104,7 @@ module.exports = function(grunt) {
 					" * @copyright <%= grunt.template.today('yyyy') %> by <%= pkg.author %>\n" +
 					" * @version <%= pkg.version %>\n" +
 					" * @license <%= pkg.license %>\n" +
-					" */\n",
+					" */",
 				compress: {
 					pure_funcs: "'[log]'",
 					dead_code: true
