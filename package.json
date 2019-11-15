@@ -19,6 +19,10 @@
     "cache"
   ],
   "author": "Alexander Wunschik <mail@wunschik.it>",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/mojoaxel"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mojoaxel/backbone-fetch-cache-indexeddb/issues"
